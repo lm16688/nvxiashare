@@ -1,0 +1,1973 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>书单分享 - 女侠分享</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+    <!-- 引入html2canvas库用于生成分享图片 -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        /* 导航栏样式 */
+        .navbar {
+            background-color: #4a90e2;
+            padding: 12px 0;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 500;
+            padding: 10px 20px;
+            border-radius: 6px;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-link.active {
+            background-color: #2c6cb0;
+        }
+        
+        .nav-link i {
+            margin-right: 8px;
+        }
+        
+        /* 页面整体样式 */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* 书单页面特定样式 */
+        .booklist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .booklist-title {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 32px;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .booklist-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .filter-select {
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 16px;
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        .create-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .create-btn:hover {
+            background-color: #2c6cb0;
+        }
+        
+        .results-info {
+            margin-bottom: 20px;
+            color: #666;
+            font-size: 16px;
+        }
+        
+        /* 书单展示区域 - 瀑布流布局 */
+        .booklist-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .booklist-card {
+            background-color: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        
+        .booklist-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .booklist-header-section {
+            height: 120px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .booklist-title-section {
+            font-size: 22px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        .booklist-date {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+        
+        .booklist-content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+        
+        .book-summary {
+            margin-bottom: 20px;
+        }
+        
+        .book-item-preview {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .book-item-preview:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .book-cover {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .book-info-preview {
+            flex-grow: 1;
+        }
+        
+        .book-title-preview {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .book-author-preview {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .booklist-footer {
+            padding: 15px 20px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .book-count {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .download-card-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+        
+        .download-card-btn:hover {
+            background-color: #2c6cb0;
+        }
+        
+        .download-card-btn i {
+            font-size: 16px;
+        }
+        
+        /* 模态框样式 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: modalFadeIn 0.3s;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-close:hover {
+            color: #333;
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .background-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .color-option {
+            width: 100%;
+            height: 40px;
+            border-radius: 6px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            transition: border 0.2s;
+        }
+        
+        .color-option.selected {
+            border-color: #4a90e2;
+        }
+        
+        .image-upload {
+            margin-top: 15px;
+        }
+        
+        .upload-label {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #f0f8ff;
+            border: 2px dashed #4a90e2;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            width: 100%;
+            color: #4a90e2;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+        
+        .upload-label:hover {
+            background-color: #e6f2ff;
+        }
+        
+        .image-preview {
+            margin-top: 15px;
+            max-width: 200px;
+            border-radius: 6px;
+            overflow: hidden;
+            display: none;
+        }
+        
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .book-items-container {
+            margin-top: 20px;
+        }
+        
+        .book-item {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4a90e2;
+        }
+        
+        .book-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .book-item-title {
+            font-size: 18px;
+            color: #333;
+            margin: 0;
+        }
+        
+        .remove-book {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        .book-item-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .book-item-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .cover-upload {
+            text-align: center;
+        }
+        
+        .cover-preview {
+            width: 120px;
+            height: 160px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            background-color: #f5f5f5;
+        }
+        
+        .add-book-btn {
+            background-color: #f0f8ff;
+            color: #4a90e2;
+            border: 2px dashed #4a90e2;
+            padding: 15px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        
+        .add-book-btn:hover {
+            background-color: #e6f2ff;
+        }
+        
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: #4a90e2;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2c6cb0;
+        }
+        
+        .btn-secondary {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+        
+        /* 分享卡片样式 */
+        .share-card {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            border-radius: 12px;
+            padding: 25px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            z-index: 1100;
+            display: none;
+            animation: modalFadeIn 0.3s;
+        }
+        
+        .share-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .share-card-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin: 0;
+        }
+        
+        .share-card-body {
+            text-align: center;
+        }
+        
+        .share-image-container {
+            margin: 20px auto;
+            width: 300px;
+            height: 400px;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .share-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .share-info {
+            margin-top: 20px;
+        }
+        
+        .share-book-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .share-reason {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        
+        .download-share-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 0 auto;
+            transition: background-color 0.3s;
+        }
+        
+        .download-share-btn:hover {
+            background-color: #2c6cb0;
+        }
+        
+        /* 空状态提示 */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+        
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .booklist-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .booklist-controls {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .filter-group {
+                flex-grow: 1;
+                justify-content: space-between;
+            }
+            
+            .filter-select {
+                flex-grow: 1;
+            }
+            
+            .booklist-container {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+            
+            .share-image-container {
+                width: 250px;
+                height: 350px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .booklist-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .booklist-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+            }
+            
+            .share-image-container {
+                width: 200px;
+                height: 300px;
+            }
+        }
+        
+        /* 分享图片生成容器样式 */
+        .share-image-generator {
+            position: absolute;
+            left: -9999px;
+            top: -9999px;
+            width: 600px;
+            height: 800px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            background-color: white;
+        }
+        
+        .share-image-content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .share-image-header {
+            padding: 30px;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #4a90e2 0%, #2c6cb0 100%);
+            color: white;
+        }
+        
+        .share-image-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-family: 'Ma Shan Zheng', cursive;
+            text-align: center;
+        }
+        
+        .share-image-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .share-image-platform {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .share-image-body {
+            padding: 30px;
+            background-color: white;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        
+        .share-image-booklist {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 2px dashed #eee;
+        }
+        
+        .share-image-booklist:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        
+        .share-image-booklist-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #4a90e2;
+            text-align: center;
+        }
+        
+        .share-image-booklist-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .share-image-book {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid #4a90e2;
+        }
+        
+        .share-image-book-cover {
+            width: 90px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 6px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
+        }
+        
+        .share-image-book-info {
+            flex-grow: 1;
+        }
+        
+        .share-image-book-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .share-image-book-author {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+        
+        .share-image-book-reason {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+            background-color: white;
+            padding: 10px;
+            border-radius: 6px;
+            border-left: 3px solid #4a90e2;
+        }
+        
+        .share-image-footer {
+            padding: 20px 30px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+            font-size: 14px;
+            color: #888;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .share-image-logo {
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 20px;
+            color: #4a90e2;
+            margin-top: 5px;
+        }
+        
+        /* 加载动画 */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #4a90e2;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        /* 成功提示 */
+        .success-tip {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1500;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            animation: slideInUp 0.3s;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .success-tip i {
+            font-size: 20px;
+        }
+        
+        .success-tip-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        /* 顶部全部分享按钮 */
+        .share-all-buttons {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+        }
+        
+        .share-all-btn {
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .share-all-btn:hover {
+            background-color: #2c6cb0;
+        }
+        
+        .share-all-btn i {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>主页
+                </a>
+                
+                
+                <a href="booklist.html" class="nav-link active">
+                    <i class="fas fa-book"></i>书单分享
+                </a>
+            </div>
+        </nav>
+        
+        <!-- 页面标题和操作区域 -->
+        <div class="booklist-header">
+            <h1 class="booklist-title">我的书单分享</h1>
+            
+            <div class="booklist-controls">
+                <div class="filter-group">
+                    <select id="yearFilter" class="filter-select">
+                        <option value="all">所有年份</option>
+                        <option value="2026">2025年</option>
+                        <option value="2025">2026年</option>
+                        <option value="2026">2027年</option>
+                        <option value="2025">2028年</option>
+                        <option value="2026">2029年</option>
+                        <option value="2025">2030年</option>
+                        <option value="2026">2031年</option>
+                        <option value="2025">2032年</option>
+                    </select>
+                    
+                    <select id="monthFilter" class="filter-select">
+                        <option value="all">所有月份</option>
+                        <option value="1">1月</option>
+                        <option value="2">2月</option>
+                        <option value="3">3月</option>
+                        <option value="4">4月</option>
+                        <option value="5">5月</option>
+                        <option value="6">6月</option>
+                        <option value="7">7月</option>
+                        <option value="8">8月</option>
+                        <option value="9">9月</option>
+                        <option value="10">10月</option>
+                        <option value="11">11月</option>
+                        <option value="12">12月</option>
+                    </select>
+                </div>
+                
+                <button id="createBooklistBtn" class="create-btn">
+                    <i class="fas fa-plus"></i>创建书单
+                </button>
+                
+               
+            </div>
+        </div>
+        
+        <!-- 筛选结果提示 -->
+        <div class="results-info" id="resultsInfo">共加载 4 条书单</div>
+        
+        <!-- 书单展示区域 -->
+        <div class="booklist-container" id="booklistContainer">
+            <!-- 书单卡片将通过JavaScript动态生成 -->
+        </div>
+        
+        <!-- 空状态提示 -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+            <i class="fas fa-book-open"></i>
+            <h3>暂无书单</h3>
+            <p>点击上方"创建书单"按钮，添加您的第一个书单吧！</p>
+        </div>
+        
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>小学语文生字学习系统 | 书单分享功能</p>
+            <p class="hint">提示：书单数据已启用云同步，更换设备也不会丢失</p>
+        </footer>
+    </div>
+    
+    <!-- 创建书单模态框 -->
+    <div id="createModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">创建新书单</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <form id="booklistForm">
+                    <div class="form-group">
+                        <label for="booklistTitle" class="form-label">书单标题</label>
+                        <input type="text" id="booklistTitle" class="form-input" placeholder="例如：2026年寒假阅读书单" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">创建时间</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div>
+                                <label for="booklistYear" class="form-label">年份</label>
+                                <select id="booklistYear" class="form-select" required>
+                                    <option value="">请选择年份</option>
+                                    <option value="2026">2026年</option>
+                                    <option value="2025">2025年</option>
+                                    <option value="2024">2024年</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="booklistMonth" class="form-label">月份</label>
+                                <select id="booklistMonth" class="form-select" required>
+                                    <option value="">请选择月份</option>
+                                    <option value="1">1月</option>
+                                    <option value="2">2月</option>
+                                    <option value="3">3月</option>
+                                    <option value="4">4月</option>
+                                    <option value="5">5月</option>
+                                    <option value="6">6月</option>
+                                    <option value="7">7月</option>
+                                    <option value="8">8月</option>
+                                    <option value="9">9月</option>
+                                    <option value="10">10月</option>
+                                    <option value="11">11月</option>
+                                    <option value="12">12月</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">背景设置</label>
+                        <div class="background-options">
+                            <div class="color-option selected" style="background-color: #FFE4E1;" data-color="#FFE4E1"></div>
+                            <div class="color-option" style="background-color: #F0F8FF;" data-color="#F0F8FF"></div>
+                            <div class="color-option" style="background-color: #F5FFFA;" data-color="#F5FFFA"></div>
+                            <div class="color-option" style="background-color: #FFF0F5;" data-color="#FFF0F5"></div>
+                            <div class="color-option" style="background-color: #F0FFF0;" data-color="#F0FFF0"></div>
+                            <div class="color-option" style="background-color: #F8F8FF;" data-color="#F8F8FF"></div>
+                        </div>
+                        
+                        <div class="image-upload">
+                            <label for="bgImageUpload" class="upload-label">
+                                <i class="fas fa-cloud-upload-alt"></i> 上传背景图片
+                            </label>
+                            <input type="file" id="bgImageUpload" accept="image/*" style="display: none;">
+                            <div class="image-preview" id="bgImagePreview">
+                                <img src="" alt="背景图片预览">
+                                <button type="button" id="removeBgImage" style="background: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-top: 10px; cursor: pointer;">移除图片</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">书单内容</label>
+                        <div class="book-items-container" id="bookItemsContainer">
+                            <!-- 书单项会动态添加到这里 -->
+                        </div>
+                        <button type="button" class="add-book-btn" id="addBookBtn">
+                            <i class="fas fa-plus"></i> 添加一本书
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelModal">取消</button>
+                <button type="button" class="btn btn-primary" id="saveBooklist">保存书单</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 分享卡片模态框 -->
+    <div id="shareCard" class="share-card">
+        <div class="share-card-header">
+            <h3 class="share-card-title">书单卡片已生成</h3>
+            <button class="modal-close" id="closeShareCard">&times;</button>
+        </div>
+        <div class="share-card-body">
+            <div id="shareImageContainer" class="share-image-container">
+                <img id="shareImage" class="share-image" src="" alt="书单卡片">
+            </div>
+            <div class="share-info">
+                <div class="share-book-title" id="shareBookTitle">书单卡片</div>
+                <div class="share-reason" id="shareReason">点击下方按钮下载卡片图片</div>
+                <button id="downloadShareBtn" class="download-share-btn">
+                    <i class="fas fa-download"></i> 下载书单卡片
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 分享图片生成容器 (隐藏) -->
+    <div id="shareImageGenerator" class="share-image-generator">
+        <div id="shareImageContent" class="share-image-content">
+            <!-- 分享图片内容会动态生成在这里 -->
+        </div>
+    </div>
+    
+    <!-- 加载动画 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loadingText">正在生成书单卡片...</div>
+    </div>
+    
+    <!-- 成功提示 -->
+    <div class="success-tip" id="successTip">
+        <i class="fas fa-check-circle"></i>
+        <span id="successTipText">书单卡片已下载完成！</span>
+        <button class="success-tip-close" id="closeSuccessTip">&times;</button>
+    </div>
+    
+    <!-- 书单项模板 (隐藏) -->
+    <template id="bookItemTemplate">
+        <div class="book-item">
+            <div class="book-item-header">
+                <h4 class="book-item-title">书籍 <span class="book-index">1</span></h4>
+                <button type="button" class="remove-book" title="删除此书">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="book-item-content">
+                <div class="cover-upload">
+                    <img class="cover-preview" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjE2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjE2MCIgZmlsbD0iI2Y1ZjVmNSIvPjx0ZXh0IHg9IjYwIiB5PSI4MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSIjY2NjIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+Q09WRVI8L3RleHQ+PC9zdmc+" alt="封面预览">
+                    <div>
+                        <label for="coverUpload" class="upload-label" style="padding: 8px 15px; font-size: 14px;">
+                            <i class="fas fa-image"></i> 上传封面
+                        </label>
+                        <input type="file" class="cover-upload-input" accept="image/*" style="display: none;">
+                    </div>
+                </div>
+                <div>
+                    <div class="form-group">
+                        <label class="form-label">书名</label>
+                        <input type="text" class="form-input book-title-input" placeholder="请输入书名" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">作者</label>
+                        <input type="text" class="form-input book-author-input" placeholder="请输入作者" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">书本简介</label>
+                        <textarea class="form-textarea book-description-input" placeholder="请输入书本简介"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">推荐原因</label>
+                        <textarea class="form-textarea book-reason-input" placeholder="为什么推荐这本书？"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // 书单数据存储
+        let booklists = [];
+        let currentBooklistId = null;
+        let currentShareImage = null;
+        let currentBooklistForShare = null;
+        
+        // 预设背景颜色
+        const presetColors = ['#FFE4E1', '#F0F8FF', '#F5FFFA', '#FFF0F5', '#F0FFF0', '#F8F8FF'];
+        
+        // 云存储模拟 - 使用localStorage作为基础，但添加了云同步模拟
+        const STORAGE_KEY = 'booklists_cloud_data';
+        const USER_ID_KEY = 'booklist_user_id';
+        
+        // DOM 元素
+        const createBooklistBtn = document.getElementById('createBooklistBtn');
+        const createModal = document.getElementById('createModal');
+        const closeModalBtn = document.getElementById('closeModal');
+        const cancelModalBtn = document.getElementById('cancelModal');
+        const saveBooklistBtn = document.getElementById('saveBooklist');
+        const booklistForm = document.getElementById('booklistForm');
+        const booklistContainer = document.getElementById('booklistContainer');
+        const resultsInfo = document.getElementById('resultsInfo');
+        const emptyState = document.getElementById('emptyState');
+        const yearFilter = document.getElementById('yearFilter');
+        const monthFilter = document.getElementById('monthFilter');
+        const addBookBtn = document.getElementById('addBookBtn');
+        const bookItemsContainer = document.getElementById('bookItemsContainer');
+        const bookItemTemplate = document.getElementById('bookItemTemplate');
+        const shareCard = document.getElementById('shareCard');
+        const closeShareCardBtn = document.getElementById('closeShareCard');
+        const shareImage = document.getElementById('shareImage');
+        const shareBookTitle = document.getElementById('shareBookTitle');
+        const shareReason = document.getElementById('shareReason');
+        const downloadShareBtn = document.getElementById('downloadShareBtn');
+        const shareImageGenerator = document.getElementById('shareImageGenerator');
+        const shareImageContent = document.getElementById('shareImageContent');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const loadingText = document.getElementById('loadingText');
+        const successTip = document.getElementById('successTip');
+        const successTipText = document.getElementById('successTipText');
+        const closeSuccessTip = document.getElementById('closeSuccessTip');
+        const shareAllBtn = document.getElementById('shareAllBtn');
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            // 生成或获取用户ID（模拟用户登录）
+            ensureUserId();
+            
+            // 加载保存的书单数据（从云存储模拟）
+            loadBooklistsFromCloud();
+            
+            // 绑定事件监听器
+            createBooklistBtn.addEventListener('click', openCreateModal);
+            closeModalBtn.addEventListener('click', closeCreateModal);
+            cancelModalBtn.addEventListener('click', closeCreateModal);
+            saveBooklistBtn.addEventListener('click', saveBooklist);
+            
+            // 筛选器事件
+            yearFilter.addEventListener('change', filterBooklists);
+            monthFilter.addEventListener('change', filterBooklists);
+            
+            // 添加书籍按钮
+            addBookBtn.addEventListener('click', addBookItem);
+            
+            // 分享卡片相关事件
+            closeShareCardBtn.addEventListener('click', closeShareCard);
+            downloadShareBtn.addEventListener('click', downloadShareImage);
+            
+            // 全部分享按钮事件
+            shareAllBtn.addEventListener('click', shareAllBooklists);
+            
+            // 关闭成功提示
+            closeSuccessTip.addEventListener('click', () => {
+                successTip.style.display = 'none';
+            });
+            
+            // 背景颜色选择
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                });
+            });
+            
+            // 背景图片上传
+            const bgImageUpload = document.getElementById('bgImageUpload');
+            const bgImagePreview = document.getElementById('bgImagePreview');
+            const removeBgImageBtn = document.getElementById('removeBgImage');
+            
+            bgImageUpload.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        bgImagePreview.querySelector('img').src = event.target.result;
+                        bgImagePreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            removeBgImageBtn.addEventListener('click', function() {
+                bgImagePreview.style.display = 'none';
+                bgImageUpload.value = '';
+                bgImagePreview.querySelector('img').src = '';
+            });
+            
+            // 初始添加一个书籍项
+            addBookItem();
+        });
+        
+        // 确保用户ID存在（模拟用户登录）
+        function ensureUserId() {
+            let userId = localStorage.getItem(USER_ID_KEY);
+            if (!userId) {
+                // 生成一个随机用户ID
+                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem(USER_ID_KEY, userId);
+            }
+            return userId;
+        }
+        
+        // 从云存储模拟加载书单数据
+        function loadBooklistsFromCloud() {
+            // 模拟从云存储加载
+            const savedBooklists = localStorage.getItem(STORAGE_KEY);
+            if (savedBooklists) {
+                try {
+                    const data = JSON.parse(savedBooklists);
+                    // 模拟多用户数据隔离
+                    const userId = ensureUserId();
+                    booklists = data[userId] || [];
+                    
+                    // 如果没有数据，创建示例书单
+                    if (booklists.length === 0) {
+                        createSampleBooklists();
+                        saveBooklistsToCloud();
+                    }
+                } catch (e) {
+                    console.error('解析书单数据失败:', e);
+                    createSampleBooklists();
+                    saveBooklistsToCloud();
+                }
+            } else {
+                // 如果没有保存的数据，创建示例书单
+                createSampleBooklists();
+                saveBooklistsToCloud();
+            }
+            
+            // 更新显示
+            renderBooklists();
+            updateResultsInfo();
+        }
+        
+        // 创建示例书单（年份从2026年开始）
+        function createSampleBooklists() {
+            const sampleBooklists = [
+                {
+                    id: Date.now() + 1,
+                    title: "2026年寒假阅读书单",
+                    year: "2026",
+                    month: "1",
+                    backgroundColor: "#FFE4E1",
+                    backgroundImage: "",
+                    books: [
+                        {
+                            title: "小王子",
+                            author: "安托万·德·圣-埃克苏佩里",
+                            description: "一部写给大人的童话，关于爱与责任的寓言。",
+                            reason: "这本书教会孩子什么是真正的友谊和责任。",
+                            cover: ""
+                        },
+                        {
+                            title: "夏洛的网",
+                            author: "E.B.怀特",
+                            description: "关于友谊、生命和死亡的感人故事。",
+                            reason: "让孩子理解生命的价值和友谊的力量。",
+                            cover: ""
+                        },
+                        {
+                            title: "哈利·波特与魔法石",
+                            author: "J.K.罗琳",
+                            description: "魔法世界的神奇冒险故事。",
+                            reason: "激发孩子的想象力和阅读兴趣。",
+                            cover: ""
+                        }
+                    ],
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: Date.now() + 2,
+                    title: "2026年春季绘本推荐",
+                    year: "2026",
+                    month: "3",
+                    backgroundColor: "#F0F8FF",
+                    backgroundImage: "",
+                    books: [
+                        {
+                            title: "猜猜我有多爱你",
+                            author: "山姆·麦克布雷尼",
+                            description: "关于母爱的温馨绘本。",
+                            reason: "帮助孩子感受亲情，学习表达爱。",
+                            cover: ""
+                        },
+                        {
+                            title: "好饿的毛毛虫",
+                            author: "艾瑞·卡尔",
+                            description: "毛毛虫变成蝴蝶的生命周期故事。",
+                            reason: "生动的画面和重复的语言，适合一年级孩子。",
+                            cover: ""
+                        }
+                    ],
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: Date.now() + 3,
+                    title: "2025年科普读物精选",
+                    year: "2025",
+                    month: "10",
+                    backgroundColor: "#F5FFFA",
+                    backgroundImage: "",
+                    books: [
+                        {
+                            title: "神奇校车系列",
+                            author: "乔安娜·柯尔",
+                            description: "有趣的科学冒险故事。",
+                            reason: "用故事的形式讲解科学知识，孩子容易接受。",
+                            cover: ""
+                        },
+                        {
+                            title: "DK儿童百科全书",
+                            author: "英国DK公司",
+                            description: "图文并茂的儿童百科全书。",
+                            reason: "图片精美，内容权威，适合作为工具书。",
+                            cover: ""
+                        }
+                    ],
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: Date.now() + 4,
+                    title: "2024年经典童话回顾",
+                    year: "2024",
+                    month: "5",
+                    backgroundColor: "#F0FFF0",
+                    backgroundImage: "",
+                    books: [
+                        {
+                            title: "安徒生童话",
+                            author: "汉斯·克里斯汀·安徒生",
+                            description: "包含《丑小鸭》、《小人鱼》等经典故事。",
+                            reason: "培养孩子的同情心和想象力。",
+                            cover: ""
+                        },
+                        {
+                            title: "格林童话",
+                            author: "格林兄弟",
+                            description: "德国传统民间故事集。",
+                            reason: "经典故事，富含道德教育意义。",
+                            cover: ""
+                        }
+                    ],
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            
+            booklists = sampleBooklists;
+        }
+        
+        // 保存书单到云存储模拟
+        function saveBooklistsToCloud() {
+            try {
+                const userId = ensureUserId();
+                const allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+                allData[userId] = booklists;
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
+                
+                // 模拟云同步成功
+                console.log('书单数据已保存到云存储');
+            } catch (e) {
+                console.error('保存书单数据失败:', e);
+                // 失败时降级到本地存储
+                localStorage.setItem('booklists_local_backup', JSON.stringify(booklists));
+            }
+        }
+        
+        // 打开创建书单模态框
+        function openCreateModal() {
+            createModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            // 重置表单
+            booklistForm.reset();
+            bookItemsContainer.innerHTML = '';
+            
+            // 设置默认颜色选择
+            document.querySelectorAll('.color-option').forEach((option, index) => {
+                if (index === 0) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+            
+            // 重置背景图片
+            document.getElementById('bgImagePreview').style.display = 'none';
+            document.getElementById('bgImageUpload').value = '';
+            
+            // 添加初始书籍项
+            addBookItem();
+            
+            currentBooklistId = null;
+        }
+        
+        // 关闭创建书单模态框
+        function closeCreateModal() {
+            createModal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // 添加书籍项
+        function addBookItem() {
+            const template = bookItemTemplate.content.cloneNode(true);
+            const bookItem = template.querySelector('.book-item');
+            
+            // 设置书籍序号
+            const bookIndex = bookItemsContainer.children.length + 1;
+            bookItem.querySelector('.book-index').textContent = bookIndex;
+            
+            // 添加删除按钮事件
+            const removeBtn = bookItem.querySelector('.remove-book');
+            removeBtn.addEventListener('click', function() {
+                bookItem.remove();
+                updateBookIndices();
+            });
+            
+            // 封面图片上传
+            const coverUploadInput = bookItem.querySelector('.cover-upload-input');
+            const coverPreview = bookItem.querySelector('.cover-preview');
+            const uploadLabel = bookItem.querySelector('.upload-label');
+            
+            coverUploadInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        coverPreview.src = event.target.result;
+                    };
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // 点击标签触发文件选择
+            uploadLabel.addEventListener('click', function() {
+                coverUploadInput.click();
+            });
+            
+            bookItemsContainer.appendChild(bookItem);
+        }
+        
+        // 更新书籍项序号
+        function updateBookIndices() {
+            const bookItems = bookItemsContainer.querySelectorAll('.book-item');
+            bookItems.forEach((item, index) => {
+                item.querySelector('.book-index').textContent = index + 1;
+            });
+        }
+        
+        // 保存书单
+        function saveBooklist() {
+            // 验证表单
+            if (!booklistForm.checkValidity()) {
+                alert('请填写所有必填字段');
+                return;
+            }
+            
+            // 获取表单数据
+            const title = document.getElementById('booklistTitle').value;
+            const year = document.getElementById('booklistYear').value;
+            const month = document.getElementById('booklistMonth').value;
+            
+            // 获取背景设置
+            const selectedColor = document.querySelector('.color-option.selected').getAttribute('data-color');
+            const bgImageUpload = document.getElementById('bgImageUpload');
+            let backgroundImage = '';
+            
+            if (bgImageUpload.files && bgImageUpload.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    backgroundImage = event.target.result;
+                    completeSave(title, year, month, selectedColor, backgroundImage);
+                };
+                reader.readAsDataURL(bgImageUpload.files[0]);
+            } else {
+                completeSave(title, year, month, selectedColor, '');
+            }
+        }
+        
+        // 完成保存操作
+        function completeSave(title, year, month, backgroundColor, backgroundImage) {
+            // 收集书籍信息
+            const bookItems = bookItemsContainer.querySelectorAll('.book-item');
+            const books = [];
+            
+            bookItems.forEach(item => {
+                const bookTitle = item.querySelector('.book-title-input').value;
+                const bookAuthor = item.querySelector('.book-author-input').value;
+                const bookDescription = item.querySelector('.book-description-input').value;
+                const bookReason = item.querySelector('.book-reason-input').value;
+                const bookCover = item.querySelector('.cover-preview').src;
+                
+                if (bookTitle && bookAuthor) {
+                    books.push({
+                        title: bookTitle,
+                        author: bookAuthor,
+                        description: bookDescription,
+                        reason: bookReason,
+                        cover: bookCover.includes('base64') ? bookCover : ''
+                    });
+                }
+            });
+            
+            if (books.length === 0) {
+                alert('请至少添加一本书籍');
+                return;
+            }
+            
+            // 创建书单对象
+            const booklist = {
+                id: currentBooklistId || Date.now(),
+                title,
+                year,
+                month,
+                backgroundColor,
+                backgroundImage,
+                books,
+                createdAt: new Date().toISOString()
+            };
+            
+            // 更新书单数据
+            if (currentBooklistId) {
+                // 编辑现有书单
+                const index = booklists.findIndex(item => item.id === currentBooklistId);
+                if (index !== -1) {
+                    booklists[index] = booklist;
+                }
+            } else {
+                // 添加新书单
+                booklists.push(booklist);
+            }
+            
+            // 保存到云存储模拟
+            saveBooklistsToCloud();
+            
+            // 关闭模态框
+            closeCreateModal();
+            
+            // 更新显示
+            renderBooklists();
+            updateResultsInfo();
+        }
+        
+        // 渲染书单列表
+        function renderBooklists(filteredBooklists = null) {
+            const booklistsToRender = filteredBooklists || booklists;
+            
+            // 清空容器
+            booklistContainer.innerHTML = '';
+            
+            if (booklistsToRender.length === 0) {
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            // 渲染每个书单
+            booklistsToRender.forEach(booklist => {
+                const card = createBooklistCard(booklist);
+                booklistContainer.appendChild(card);
+            });
+        }
+        
+        // 创建书单卡片
+        function createBooklistCard(booklist) {
+            const card = document.createElement('div');
+            card.className = 'booklist-card';
+            card.dataset.id = booklist.id;
+            
+            // 设置背景
+            const headerStyle = booklist.backgroundImage 
+                ? `background-image: url('${booklist.backgroundImage}'); background-size: cover;`
+                : `background-color: ${booklist.backgroundColor};`;
+            
+            const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+            const monthName = monthNames[parseInt(booklist.month) - 1] || booklist.month;
+            
+            card.innerHTML = `
+                <div class="booklist-header-section" style="${headerStyle}">
+                    <h3 class="booklist-title-section">${booklist.title}</h3>
+                    <div class="booklist-date">${booklist.year}年 ${monthName}</div>
+                </div>
+                <div class="booklist-content">
+                    <div class="book-summary">
+                        ${booklist.books.slice(0, 3).map(book => `
+                            <div class="book-item-preview">
+                                ${book.cover ? `<img src="${book.cover}" class="book-cover" alt="${book.title}">` : 
+                                  `<div class="book-cover" style="background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px;">无封面</div>`}
+                                <div class="book-info-preview">
+                                    <div class="book-title-preview">${book.title}</div>
+                                    <div class="book-author-preview">${book.author}</div>
+                                    <div style="font-size: 13px; color: #888; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">${book.reason || book.description || ''}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="booklist-footer">
+                    <div class="book-count">共 ${booklist.books.length} 本书</div>
+                    <button class="download-card-btn" data-booklist-id="${booklist.id}">
+                        <i class="fas fa-download"></i> 下载书单卡片分享
+                    </button>
+                </div>
+            `;
+            
+            // 添加下载按钮事件
+            const downloadBtn = card.querySelector('.download-card-btn');
+            downloadBtn.addEventListener('click', function() {
+                const booklistId = this.dataset.booklistId;
+                const booklist = booklists.find(item => item.id == booklistId);
+                if (booklist) {
+                    generateBooklistCard(booklist);
+                }
+            });
+            
+            // 添加点击查看详情事件
+            card.addEventListener('click', function(e) {
+                if (!e.target.closest('.download-card-btn') && !e.target.closest('.book-cover')) {
+                    viewBooklistDetails(booklist);
+                }
+            });
+            
+            return card;
+        }
+        
+        // 查看书单详情
+        function viewBooklistDetails(booklist) {
+            // 这里可以扩展为显示更详细的书单信息
+            alert(`书单详情：${booklist.title}\n\n包含书籍：\n${booklist.books.map(book => `• ${book.title} (${book.author})`).join('\n')}`);
+        }
+        
+        // 分享全部书单
+        function shareAllBooklists() {
+            if (booklists.length === 0) {
+                alert('暂无书单，请先创建书单');
+                return;
+            }
+            
+            // 生成一个包含所有书单的汇总卡片
+            const allBooklistsSummary = {
+                id: 'all',
+                title: '我的全部阅读书单',
+                year: '2026',
+                month: '1',
+                backgroundColor: '#4a90e2',
+                backgroundImage: '',
+                books: [],
+                createdAt: new Date().toISOString()
+            };
+            
+            generateBooklistCard(allBooklistsSummary, true);
+        }
+        
+        // 生成书单卡片图片
+        function generateBooklistCard(booklist, isAllBooklists = false) {
+            // 显示加载动画
+            loadingOverlay.style.display = 'flex';
+            loadingText.textContent = '正在生成书单卡片...';
+            
+            // 清空分享图片容器
+            shareImageContent.innerHTML = '';
+            
+            currentBooklistForShare = booklist;
+            
+            // 构建书单卡片内容
+            const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+            const monthName = monthNames[parseInt(booklist.month) - 1] || booklist.month;
+            
+            const headerStyle = booklist.backgroundImage 
+                ? `background-image: url('${booklist.backgroundImage}'); background-size: cover;`
+                : `background-color: ${booklist.backgroundColor};`;
+            
+            let shareImageHTML = '';
+            
+            if (isAllBooklists) {
+                // 全部书单汇总卡片
+                const totalBooks = booklists.reduce((sum, list) => sum + list.books.length, 0);
+                
+                shareImageHTML = `
+                    <div class="share-image-header" style="${headerStyle}">
+                        <div class="share-image-title">${booklist.title}</div>
+                        <div class="share-image-subtitle">${booklists.length} 个书单 · ${totalBooks} 本好书</div>
+                    </div>
+                    <div class="share-image-body">
+                        ${booklists.slice(0, 3).map(list => `
+                            <div class="share-image-booklist">
+                                <div class="share-image-booklist-title">${list.title}</div>
+                                <div class="share-image-booklist-info">
+                                    <span>${list.year}年 ${getMonthName(list.month)}</span>
+                                    <span>${list.books.length} 本书</span>
+                                </div>
+                                ${list.books.slice(0, 2).map(book => `
+                                    <div class="share-image-book">
+                                        ${book.cover ? `<img src="${book.cover}" class="share-image-book-cover" alt="${book.title}">` : 
+                                          `<div class="share-image-book-cover" style="background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px;">无封面</div>`}
+                                        <div class="share-image-book-info">
+                                            <div class="share-image-book-title">${book.title}</div>
+                                            <div class="share-image-book-author">${book.author}</div>
+                                            <div class="share-image-book-reason">${book.reason || book.description || ''}</div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                ${list.books.length > 2 ? `<div style="text-align: center; color: #666; font-size: 14px; margin-top: 10px; padding: 10px; background-color: #f0f8ff; border-radius: 6px;">还有 ${list.books.length - 2} 本书...</div>` : ''}
+                            </div>
+                        `).join('')}
+                        ${booklists.length > 3 ? `<div style="text-align: center; color: #4a90e2; font-size: 16px; font-weight: 600; margin-top: 20px; padding: 15px; background-color: #f0f8ff; border-radius: 8px;">还有 ${booklists.length - 3} 个书单...</div>` : ''}
+                    </div>
+                    <div class="share-image-footer">
+                        <div>女侠分享</div>
+                        <div class="share-image-logo">阅读让世界更美好</div>
+                    </div>
+                `;
+            } else {
+                // 单个书单卡片
+                shareImageHTML = `
+                    <div class="share-image-header" style="${headerStyle}">
+                        <div class="share-image-title">${booklist.title}</div>
+                        <div class="share-image-subtitle">${booklist.year}年 ${monthName} · 共 ${booklist.books.length} 本好书</div>
+                    </div>
+                    <div class="share-image-body">
+                        ${booklist.books.map(book => `
+                            <div class="share-image-book">
+                                ${book.cover ? `<img src="${book.cover}" class="share-image-book-cover" alt="${book.title}">` : 
+                                  `<div class="share-image-book-cover" style="background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px;">无封面</div>`}
+                                <div class="share-image-book-info">
+                                    <div class="share-image-book-title">${book.title}</div>
+                                    <div class="share-image-book-author">${book.author}</div>
+                                    <div class="share-image-book-reason">${book.reason || book.description || ''}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="share-image-footer">
+                        <div>女侠分享</div>
+                        <div class="share-image-logo">阅读让世界更美好</div>
+                    </div>
+                `;
+            }
+            
+            shareImageContent.innerHTML = shareImageHTML;
+            
+            // 使用html2canvas生成图片
+            html2canvas(shareImageGenerator, {
+                scale: 2, // 提高图片质量
+                useCORS: true,
+                backgroundColor: null
+            }).then(canvas => {
+                // 将canvas转换为图片URL
+                const imageUrl = canvas.toDataURL('image/png');
+                currentShareImage = imageUrl;
+                
+                // 隐藏加载动画
+                loadingOverlay.style.display = 'none';
+                
+                // 直接下载图片
+                downloadGeneratedImage(imageUrl, booklist.title);
+                
+            }).catch(error => {
+                console.error('生成书单卡片失败:', error);
+                loadingOverlay.style.display = 'none';
+                alert('生成书单卡片失败，请重试');
+            });
+        }
+        
+        // 下载生成的图片
+        function downloadGeneratedImage(imageUrl, booklistTitle) {
+            // 创建一个临时链接元素
+            const link = document.createElement('a');
+            const fileName = `书单卡片_${booklistTitle}_${new Date().getTime()}.png`;
+            link.href = imageUrl;
+            link.download = fileName;
+            link.style.display = 'none';
+            
+            // 添加到文档并模拟点击
+            document.body.appendChild(link);
+            link.click();
+            
+            // 清理
+            document.body.removeChild(link);
+            
+            // 显示成功提示
+            successTipText.textContent = `书单卡片"${booklistTitle}"已下载完成！`;
+            successTip.style.display = 'flex';
+            
+            // 3秒后自动关闭提示
+            setTimeout(() => {
+                successTip.style.display = 'none';
+            }, 3000);
+        }
+        
+        // 获取月份名称
+        function getMonthName(month) {
+            const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+            return monthNames[parseInt(month) - 1] || month;
+        }
+        
+        // 下载分享图片（用于模态框中的下载按钮）
+        function downloadShareImage() {
+            if (!currentShareImage || !currentBooklistForShare) return;
+            
+            downloadGeneratedImage(currentShareImage, currentBooklistForShare.title);
+            
+            // 关闭分享卡片
+            closeShareCard();
+        }
+        
+        // 关闭分享卡片
+        function closeShareCard() {
+            shareCard.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            currentShareImage = null;
+            currentBooklistForShare = null;
+        }
+        
+        // 筛选书单
+        function filterBooklists() {
+            const selectedYear = yearFilter.value;
+            const selectedMonth = monthFilter.value;
+            
+            let filtered = booklists;
+            
+            if (selectedYear !== 'all') {
+                filtered = filtered.filter(booklist => booklist.year === selectedYear);
+            }
+            
+            if (selectedMonth !== 'all') {
+                filtered = filtered.filter(booklist => booklist.month === selectedMonth);
+            }
+            
+            renderBooklists(filtered);
+            updateResultsInfo(filtered.length);
+        }
+        
+        // 更新结果信息
+        function updateResultsInfo(count = null) {
+            const total = count !== null ? count : booklists.length;
+            resultsInfo.textContent = `共 ${total} 条书单`;
+        }
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            if (event.target === createModal) {
+                closeCreateModal();
+            }
+            if (event.target === shareCard) {
+                closeShareCard();
+            }
+            if (event.target === loadingOverlay) {
+                loadingOverlay.style.display = 'none';
+            }
+        });
+        
+        // 高亮当前页面导航
+        const currentPage = window.location.pathname.split('/').pop();
+        const navLinks = document.querySelectorAll('.nav-link');
+        navLinks.forEach(link => {
+            const linkPage = link.getAttribute('href');
+            if (linkPage === currentPage) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
