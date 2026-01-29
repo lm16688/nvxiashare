@@ -227,11 +227,14 @@
             color: #666;
         }
         
-        .download-card-btn {
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            padding: 10px 16px;
+        .card-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .card-action-btn {
+            flex: 1;
+            padding: 8px 12px;
             border-radius: 6px;
             font-size: 14px;
             font-weight: 500;
@@ -240,16 +243,35 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            width: 100%;
+            gap: 5px;
+            border: none;
+        }
+        
+        .download-card-btn {
+            background-color: #4a90e2;
+            color: white;
         }
         
         .download-card-btn:hover {
             background-color: #2c6cb0;
         }
         
-        .download-card-btn i {
-            font-size: 16px;
+        .edit-card-btn {
+            background-color: #f0ad4e;
+            color: white;
+        }
+        
+        .edit-card-btn:hover {
+            background-color: #ec971f;
+        }
+        
+        .delete-card-btn {
+            background-color: #d9534f;
+            color: white;
+        }
+        
+        .delete-card-btn:hover {
+            background-color: #c9302c;
         }
         
         /* 模态框样式 */
@@ -360,10 +382,12 @@
             cursor: pointer;
             border: 3px solid transparent;
             transition: border 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         
         .color-option.selected {
             border-color: #4a90e2;
+            transform: scale(1.05);
         }
         
         .image-upload {
@@ -900,35 +924,74 @@
             margin-left: 10px;
         }
         
-        /* 顶部全部分享按钮 */
-        .share-all-buttons {
-            display: flex;
-            gap: 10px;
-            margin-left: 10px;
+        /* 确认删除对话框 */
+        .confirm-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1200;
+            display: none;
+            justify-content: center;
+            align-items: center;
         }
         
-        .share-all-btn {
-            background-color: #4a90e2;
-            color: white;
-            border: none;
-            padding: 10px 16px;
+        .confirm-content {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        
+        .confirm-title {
+            font-size: 20px;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .confirm-message {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        
+        .confirm-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .confirm-btn {
+            padding: 10px 25px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
+            border: none;
             transition: background-color 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
         }
         
-        .share-all-btn:hover {
-            background-color: #2c6cb0;
+        .confirm-cancel {
+            background-color: #f0f0f0;
+            color: #333;
         }
         
-        .share-all-btn i {
-            font-size: 16px;
+        .confirm-cancel:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .confirm-delete {
+            background-color: #d9534f;
+            color: white;
+        }
+        
+        .confirm-delete:hover {
+            background-color: #c9302c;
         }
     </style>
 </head>
@@ -940,7 +1003,6 @@
                 <a href="index.html" class="nav-link">
                     <i class="fas fa-home"></i>主页
                 </a>
-                
                 
                 <a href="booklist.html" class="nav-link active">
                     <i class="fas fa-book"></i>书单分享
@@ -956,14 +1018,10 @@
                 <div class="filter-group">
                     <select id="yearFilter" class="filter-select">
                         <option value="all">所有年份</option>
-                        <option value="2026">2025年</option>
-                        <option value="2025">2026年</option>
-                        <option value="2026">2027年</option>
-                        <option value="2025">2028年</option>
-                        <option value="2026">2029年</option>
-                        <option value="2025">2030年</option>
-                        <option value="2026">2031年</option>
-                        <option value="2025">2032年</option>
+                        <option value="2026">2026年</option>
+                        <option value="2025">2025年</option>
+                        <option value="2024">2024年</option>
+                        <option value="2023">2023年</option>
                     </select>
                     
                     <select id="monthFilter" class="filter-select">
@@ -986,8 +1044,6 @@
                 <button id="createBooklistBtn" class="create-btn">
                     <i class="fas fa-plus"></i>创建书单
                 </button>
-                
-               
             </div>
         </div>
         
@@ -1013,11 +1069,11 @@
         </footer>
     </div>
     
-    <!-- 创建书单模态框 -->
+    <!-- 创建/编辑书单模态框 -->
     <div id="createModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">创建新书单</h2>
+                <h2 class="modal-title" id="modalTitle">创建新书单</h2>
                 <button class="modal-close" id="closeModal">&times;</button>
             </div>
             
@@ -1034,10 +1090,10 @@
                             <div>
                                 <label for="booklistYear" class="form-label">年份</label>
                                 <select id="booklistYear" class="form-select" required>
-                                    <option value="">请选择年份</option>
                                     <option value="2026">2026年</option>
                                     <option value="2025">2025年</option>
                                     <option value="2024">2024年</option>
+                                    <option value="2023">2023年</option>
                                 </select>
                             </div>
                             <div>
@@ -1063,7 +1119,7 @@
                     
                     <div class="form-group">
                         <label class="form-label">背景设置</label>
-                        <div class="background-options">
+                        <div class="background-options" id="backgroundOptions">
                             <div class="color-option selected" style="background-color: #FFE4E1;" data-color="#FFE4E1"></div>
                             <div class="color-option" style="background-color: #F0F8FF;" data-color="#F0F8FF"></div>
                             <div class="color-option" style="background-color: #F5FFFA;" data-color="#F5FFFA"></div>
@@ -1119,6 +1175,18 @@
                 <button id="downloadShareBtn" class="download-share-btn">
                     <i class="fas fa-download"></i> 下载书单卡片
                 </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 删除确认对话框 -->
+    <div id="confirmDeleteDialog" class="confirm-dialog">
+        <div class="confirm-content">
+            <h3 class="confirm-title">确认删除</h3>
+            <p class="confirm-message" id="deleteConfirmMessage">您确定要删除这个书单吗？此操作不可撤销。</p>
+            <div class="confirm-buttons">
+                <button class="confirm-btn confirm-cancel" id="cancelDelete">取消</button>
+                <button class="confirm-btn confirm-delete" id="confirmDelete">确认删除</button>
             </div>
         </div>
     </div>
@@ -1190,13 +1258,16 @@
         let currentBooklistId = null;
         let currentShareImage = null;
         let currentBooklistForShare = null;
+        let booklistToDelete = null;
         
         // 预设背景颜色
         const presetColors = ['#FFE4E1', '#F0F8FF', '#F5FFFA', '#FFF0F5', '#F0FFF0', '#F8F8FF'];
         
-        // 云存储模拟 - 使用localStorage作为基础，但添加了云同步模拟
-        const STORAGE_KEY = 'booklists_cloud_data';
-        const USER_ID_KEY = 'booklist_user_id';
+        // 云存储配置 - 使用IndexedDB作为主存储，localStorage作为备份
+        const DB_NAME = 'BooklistDB';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'booklists';
+        const LOCAL_BACKUP_KEY = 'booklists_local_backup';
         
         // DOM 元素
         const createBooklistBtn = document.getElementById('createBooklistBtn');
@@ -1226,15 +1297,20 @@
         const successTip = document.getElementById('successTip');
         const successTipText = document.getElementById('successTipText');
         const closeSuccessTip = document.getElementById('closeSuccessTip');
-        const shareAllBtn = document.getElementById('shareAllBtn');
+        const modalTitle = document.getElementById('modalTitle');
+        const backgroundOptions = document.getElementById('backgroundOptions');
+        const confirmDeleteDialog = document.getElementById('confirmDeleteDialog');
+        const cancelDeleteBtn = document.getElementById('cancelDelete');
+        const confirmDeleteBtn = document.getElementById('confirmDelete');
+        const deleteConfirmMessage = document.getElementById('deleteConfirmMessage');
+        
+        // 数据库对象
+        let db = null;
         
         // 初始化页面
         document.addEventListener('DOMContentLoaded', function() {
-            // 生成或获取用户ID（模拟用户登录）
-            ensureUserId();
-            
-            // 加载保存的书单数据（从云存储模拟）
-            loadBooklistsFromCloud();
+            // 初始化数据库
+            initDatabase();
             
             // 绑定事件监听器
             createBooklistBtn.addEventListener('click', openCreateModal);
@@ -1253,8 +1329,13 @@
             closeShareCardBtn.addEventListener('click', closeShareCard);
             downloadShareBtn.addEventListener('click', downloadShareImage);
             
-            // 全部分享按钮事件
-            shareAllBtn.addEventListener('click', shareAllBooklists);
+            // 删除确认对话框事件
+            cancelDeleteBtn.addEventListener('click', () => {
+                confirmDeleteDialog.style.display = 'none';
+                booklistToDelete = null;
+            });
+            
+            confirmDeleteBtn.addEventListener('click', deleteBooklistConfirmed);
             
             // 关闭成功提示
             closeSuccessTip.addEventListener('click', () => {
@@ -1262,13 +1343,13 @@
             });
             
             // 背景颜色选择
-            document.querySelectorAll('.color-option').forEach(option => {
-                option.addEventListener('click', function() {
+            backgroundOptions.addEventListener('click', function(e) {
+                if (e.target.classList.contains('color-option')) {
                     document.querySelectorAll('.color-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
-                    this.classList.add('selected');
-                });
+                    e.target.classList.add('selected');
+                }
             });
             
             // 背景图片上传
@@ -1292,55 +1373,91 @@
                 bgImageUpload.value = '';
                 bgImagePreview.querySelector('img').src = '';
             });
-            
-            // 初始添加一个书籍项
-            addBookItem();
         });
         
-        // 确保用户ID存在（模拟用户登录）
-        function ensureUserId() {
-            let userId = localStorage.getItem(USER_ID_KEY);
-            if (!userId) {
-                // 生成一个随机用户ID
-                userId = 'user_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                localStorage.setItem(USER_ID_KEY, userId);
-            }
-            return userId;
+        // 初始化IndexedDB数据库
+        function initDatabase() {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            
+            request.onerror = function(event) {
+                console.error('数据库打开失败:', event.target.error);
+                // 降级到localStorage
+                loadBooklistsFromLocalStorage();
+            };
+            
+            request.onsuccess = function(event) {
+                db = event.target.result;
+                console.log('数据库连接成功');
+                loadBooklistsFromDB();
+            };
+            
+            request.onupgradeneeded = function(event) {
+                db = event.target.result;
+                
+                // 创建对象存储空间
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                    objectStore.createIndex('year', 'year', { unique: false });
+                    objectStore.createIndex('month', 'month', { unique: false });
+                    objectStore.createIndex('createdAt', 'createdAt', { unique: false });
+                }
+            };
         }
         
-        // 从云存储模拟加载书单数据
-        function loadBooklistsFromCloud() {
-            // 模拟从云存储加载
-            const savedBooklists = localStorage.getItem(STORAGE_KEY);
+        // 从IndexedDB加载书单数据
+        function loadBooklistsFromDB() {
+            if (!db) {
+                loadBooklistsFromLocalStorage();
+                return;
+            }
+            
+            const transaction = db.transaction([STORE_NAME], 'readonly');
+            const objectStore = transaction.objectStore(STORE_NAME);
+            const request = objectStore.getAll();
+            
+            request.onsuccess = function(event) {
+                booklists = event.target.result;
+                
+                // 如果没有数据，创建示例书单
+                if (booklists.length === 0) {
+                    createSampleBooklists();
+                    saveAllBooklistsToDB();
+                }
+                
+                // 更新显示
+                renderBooklists();
+                updateResultsInfo();
+            };
+            
+            request.onerror = function(event) {
+                console.error('从数据库加载数据失败:', event.target.error);
+                loadBooklistsFromLocalStorage();
+            };
+        }
+        
+        // 从localStorage加载书单数据（备用）
+        function loadBooklistsFromLocalStorage() {
+            const savedBooklists = localStorage.getItem(LOCAL_BACKUP_KEY);
             if (savedBooklists) {
                 try {
-                    const data = JSON.parse(savedBooklists);
-                    // 模拟多用户数据隔离
-                    const userId = ensureUserId();
-                    booklists = data[userId] || [];
-                    
-                    // 如果没有数据，创建示例书单
-                    if (booklists.length === 0) {
-                        createSampleBooklists();
-                        saveBooklistsToCloud();
-                    }
+                    booklists = JSON.parse(savedBooklists);
                 } catch (e) {
                     console.error('解析书单数据失败:', e);
                     createSampleBooklists();
-                    saveBooklistsToCloud();
                 }
             } else {
-                // 如果没有保存的数据，创建示例书单
                 createSampleBooklists();
-                saveBooklistsToCloud();
             }
+            
+            // 保存到localStorage作为备份
+            saveBooklistsToLocalStorage();
             
             // 更新显示
             renderBooklists();
             updateResultsInfo();
         }
         
-        // 创建示例书单（年份从2026年开始）
+        // 创建示例书单
         function createSampleBooklists() {
             const sampleBooklists = [
                 {
@@ -1455,25 +1572,107 @@
             booklists = sampleBooklists;
         }
         
-        // 保存书单到云存储模拟
-        function saveBooklistsToCloud() {
+        // 保存所有书单到IndexedDB
+        function saveAllBooklistsToDB() {
+            if (!db) {
+                saveBooklistsToLocalStorage();
+                return;
+            }
+            
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const objectStore = transaction.objectStore(STORE_NAME);
+            
+            // 清空原有数据
+            objectStore.clear();
+            
+            // 添加所有书单
+            booklists.forEach(booklist => {
+                objectStore.add(booklist);
+            });
+            
+            // 同时保存到localStorage作为备份
+            saveBooklistsToLocalStorage();
+            
+            transaction.oncomplete = function() {
+                console.log('所有书单已保存到数据库');
+            };
+            
+            transaction.onerror = function(event) {
+                console.error('保存到数据库失败:', event.target.error);
+                saveBooklistsToLocalStorage();
+            };
+        }
+        
+        // 保存单个书单到IndexedDB
+        function saveBooklistToDB(booklist) {
+            if (!db) {
+                saveBooklistsToLocalStorage();
+                return;
+            }
+            
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const objectStore = transaction.objectStore(STORE_NAME);
+            
+            const request = objectStore.put(booklist);
+            
+            request.onsuccess = function() {
+                console.log('书单已保存到数据库');
+                // 同时更新localStorage备份
+                saveBooklistsToLocalStorage();
+            };
+            
+            request.onerror = function(event) {
+                console.error('保存书单到数据库失败:', event.target.error);
+                saveBooklistsToLocalStorage();
+            };
+        }
+        
+        // 从IndexedDB删除书单
+        function deleteBooklistFromDB(booklistId) {
+            if (!db) {
+                // 从本地存储删除
+                const index = booklists.findIndex(item => item.id == booklistId);
+                if (index !== -1) {
+                    booklists.splice(index, 1);
+                    saveBooklistsToLocalStorage();
+                }
+                return;
+            }
+            
+            const transaction = db.transaction([STORE_NAME], 'readwrite');
+            const objectStore = transaction.objectStore(STORE_NAME);
+            
+            const request = objectStore.delete(Number(booklistId));
+            
+            request.onsuccess = function() {
+                console.log('书单已从数据库删除');
+                // 同时更新localStorage备份
+                saveBooklistsToLocalStorage();
+            };
+            
+            request.onerror = function(event) {
+                console.error('从数据库删除书单失败:', event.target.error);
+                // 降级到本地存储
+                const index = booklists.findIndex(item => item.id == booklistId);
+                if (index !== -1) {
+                    booklists.splice(index, 1);
+                    saveBooklistsToLocalStorage();
+                }
+            };
+        }
+        
+        // 保存书单到localStorage作为备份
+        function saveBooklistsToLocalStorage() {
             try {
-                const userId = ensureUserId();
-                const allData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-                allData[userId] = booklists;
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(allData));
-                
-                // 模拟云同步成功
-                console.log('书单数据已保存到云存储');
+                localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(booklists));
+                console.log('书单数据已备份到localStorage');
             } catch (e) {
-                console.error('保存书单数据失败:', e);
-                // 失败时降级到本地存储
-                localStorage.setItem('booklists_local_backup', JSON.stringify(booklists));
+                console.error('保存到localStorage失败:', e);
             }
         }
         
-        // 打开创建书单模态框
-        function openCreateModal() {
+        // 打开创建/编辑书单模态框
+        function openCreateModal(booklistId = null) {
             createModal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
             
@@ -1494,10 +1693,45 @@
             document.getElementById('bgImagePreview').style.display = 'none';
             document.getElementById('bgImageUpload').value = '';
             
-            // 添加初始书籍项
-            addBookItem();
-            
-            currentBooklistId = null;
+            if (booklistId) {
+                // 编辑模式
+                modalTitle.textContent = '编辑书单';
+                currentBooklistId = booklistId;
+                const booklist = booklists.find(item => item.id == booklistId);
+                
+                if (booklist) {
+                    // 填充表单数据
+                    document.getElementById('booklistTitle').value = booklist.title;
+                    document.getElementById('booklistYear').value = booklist.year;
+                    document.getElementById('booklistMonth').value = booklist.month;
+                    
+                    // 设置背景颜色
+                    document.querySelectorAll('.color-option').forEach(option => {
+                        if (option.getAttribute('data-color') === booklist.backgroundColor) {
+                            option.classList.add('selected');
+                        } else {
+                            option.classList.remove('selected');
+                        }
+                    });
+                    
+                    // 设置背景图片
+                    if (booklist.backgroundImage) {
+                        bgImagePreview.querySelector('img').src = booklist.backgroundImage;
+                        bgImagePreview.style.display = 'block';
+                    }
+                    
+                    // 添加书籍项
+                    booklist.books.forEach((book, index) => {
+                        addBookItem(book);
+                    });
+                }
+            } else {
+                // 创建模式
+                modalTitle.textContent = '创建新书单';
+                currentBooklistId = null;
+                // 添加初始书籍项
+                addBookItem();
+            }
         }
         
         // 关闭创建书单模态框
@@ -1507,7 +1741,7 @@
         }
         
         // 添加书籍项
-        function addBookItem() {
+        function addBookItem(bookData = null) {
             const template = bookItemTemplate.content.cloneNode(true);
             const bookItem = template.querySelector('.book-item');
             
@@ -1541,6 +1775,18 @@
             uploadLabel.addEventListener('click', function() {
                 coverUploadInput.click();
             });
+            
+            // 如果提供了书籍数据，填充表单
+            if (bookData) {
+                bookItem.querySelector('.book-title-input').value = bookData.title || '';
+                bookItem.querySelector('.book-author-input').value = bookData.author || '';
+                bookItem.querySelector('.book-description-input').value = bookData.description || '';
+                bookItem.querySelector('.book-reason-input').value = bookData.reason || '';
+                
+                if (bookData.cover) {
+                    coverPreview.src = bookData.cover;
+                }
+            }
             
             bookItemsContainer.appendChild(bookItem);
         }
@@ -1579,7 +1825,10 @@
                 };
                 reader.readAsDataURL(bgImageUpload.files[0]);
             } else {
-                completeSave(title, year, month, selectedColor, '');
+                // 检查是否已有背景图片
+                const existingBgImage = document.getElementById('bgImagePreview').querySelector('img').src;
+                backgroundImage = existingBgImage && !existingBgImage.includes('data:image/svg+xml') ? existingBgImage : '';
+                completeSave(title, year, month, selectedColor, backgroundImage);
             }
         }
         
@@ -1636,8 +1885,8 @@
                 booklists.push(booklist);
             }
             
-            // 保存到云存储模拟
-            saveBooklistsToCloud();
+            // 保存到数据库
+            saveBooklistToDB(booklist);
             
             // 关闭模态框
             closeCreateModal();
@@ -1645,6 +1894,19 @@
             // 更新显示
             renderBooklists();
             updateResultsInfo();
+            
+            // 显示成功提示
+            showSuccessTip(currentBooklistId ? '书单修改成功' : '书单创建成功');
+        }
+        
+        // 显示成功提示
+        function showSuccessTip(message) {
+            successTipText.textContent = message;
+            successTip.style.display = 'flex';
+            
+            setTimeout(() => {
+                successTip.style.display = 'none';
+            }, 3000);
         }
         
         // 渲染书单列表
@@ -1704,15 +1966,24 @@
                 </div>
                 <div class="booklist-footer">
                     <div class="book-count">共 ${booklist.books.length} 本书</div>
-                    <button class="download-card-btn" data-booklist-id="${booklist.id}">
-                        <i class="fas fa-download"></i> 下载书单卡片分享
-                    </button>
+                    <div class="card-actions">
+                        <button class="card-action-btn download-card-btn" data-booklist-id="${booklist.id}" title="下载分享卡片">
+                            <i class="fas fa-download"></i> 下载
+                        </button>
+                        <button class="card-action-btn edit-card-btn" data-booklist-id="${booklist.id}" title="编辑书单">
+                            <i class="fas fa-edit"></i> 编辑
+                        </button>
+                        <button class="card-action-btn delete-card-btn" data-booklist-id="${booklist.id}" title="删除书单">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
                 </div>
             `;
             
             // 添加下载按钮事件
             const downloadBtn = card.querySelector('.download-card-btn');
-            downloadBtn.addEventListener('click', function() {
+            downloadBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
                 const booklistId = this.dataset.booklistId;
                 const booklist = booklists.find(item => item.id == booklistId);
                 if (booklist) {
@@ -1720,9 +1991,28 @@
                 }
             });
             
+            // 添加编辑按钮事件
+            const editBtn = card.querySelector('.edit-card-btn');
+            editBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const booklistId = this.dataset.booklistId;
+                openCreateModal(booklistId);
+            });
+            
+            // 添加删除按钮事件
+            const deleteBtn = card.querySelector('.delete-card-btn');
+            deleteBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const booklistId = this.dataset.booklistId;
+                const booklist = booklists.find(item => item.id == booklistId);
+                if (booklist) {
+                    showDeleteConfirmation(booklist);
+                }
+            });
+            
             // 添加点击查看详情事件
             card.addEventListener('click', function(e) {
-                if (!e.target.closest('.download-card-btn') && !e.target.closest('.book-cover')) {
+                if (!e.target.closest('.card-action-btn') && !e.target.closest('.book-cover')) {
                     viewBooklistDetails(booklist);
                 }
             });
@@ -1730,32 +2020,45 @@
             return card;
         }
         
+        // 显示删除确认对话框
+        function showDeleteConfirmation(booklist) {
+            booklistToDelete = booklist;
+            deleteConfirmMessage.textContent = `您确定要删除"${booklist.title}"这个书单吗？此操作不可撤销。`;
+            confirmDeleteDialog.style.display = 'flex';
+        }
+        
+        // 确认删除书单
+        function deleteBooklistConfirmed() {
+            if (!booklistToDelete) return;
+            
+            const booklistId = booklistToDelete.id;
+            
+            // 从数据库删除
+            deleteBooklistFromDB(booklistId);
+            
+            // 从内存中删除
+            const index = booklists.findIndex(item => item.id == booklistId);
+            if (index !== -1) {
+                booklists.splice(index, 1);
+            }
+            
+            // 关闭确认对话框
+            confirmDeleteDialog.style.display = 'none';
+            
+            // 更新显示
+            renderBooklists();
+            updateResultsInfo();
+            
+            // 显示成功提示
+            showSuccessTip('书单删除成功');
+            
+            booklistToDelete = null;
+        }
+        
         // 查看书单详情
         function viewBooklistDetails(booklist) {
             // 这里可以扩展为显示更详细的书单信息
             alert(`书单详情：${booklist.title}\n\n包含书籍：\n${booklist.books.map(book => `• ${book.title} (${book.author})`).join('\n')}`);
-        }
-        
-        // 分享全部书单
-        function shareAllBooklists() {
-            if (booklists.length === 0) {
-                alert('暂无书单，请先创建书单');
-                return;
-            }
-            
-            // 生成一个包含所有书单的汇总卡片
-            const allBooklistsSummary = {
-                id: 'all',
-                title: '我的全部阅读书单',
-                year: '2026',
-                month: '1',
-                backgroundColor: '#4a90e2',
-                backgroundImage: '',
-                books: [],
-                createdAt: new Date().toISOString()
-            };
-            
-            generateBooklistCard(allBooklistsSummary, true);
         }
         
         // 生成书单卡片图片
@@ -1954,6 +2257,10 @@
             }
             if (event.target === loadingOverlay) {
                 loadingOverlay.style.display = 'none';
+            }
+            if (event.target === confirmDeleteDialog) {
+                confirmDeleteDialog.style.display = 'none';
+                booklistToDelete = null;
             }
         });
         
