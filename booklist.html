@@ -643,6 +643,56 @@
             color: #666;
         }
         
+        /* 用户信息提示 */
+        .user-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .user-info i {
+            color: #4a90e2;
+        }
+        
+        /* 同步状态提示 */
+        .sync-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #f8f9fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sync-status.syncing {
+            color: #f0ad4e;
+        }
+        
+        .sync-status.synced {
+            color: #4CAF50;
+        }
+        
+        .sync-status.failed {
+            color: #d9534f;
+        }
+        
         /* 响应式调整 */
         @media (max-width: 768px) {
             .booklist-header {
@@ -671,6 +721,12 @@
             .share-image-container {
                 width: 250px;
                 height: 350px;
+            }
+            
+            .user-info, .sync-status {
+                position: static;
+                margin: 10px 0;
+                display: inline-block;
             }
         }
         
@@ -996,6 +1052,18 @@
     </style>
 </head>
 <body>
+    <!-- 用户信息提示 -->
+    <div class="user-info" id="userInfo">
+        <i class="fas fa-user"></i>
+        <span id="userIdDisplay">用户ID: 加载中...</span>
+    </div>
+    
+    <!-- 同步状态提示 -->
+    <div class="sync-status" id="syncStatus">
+        <i class="fas fa-cloud"></i>
+        <span id="syncStatusText">数据同步中...</span>
+    </div>
+    
     <div class="container">
         <!-- 导航栏 -->
         <nav class="navbar">
@@ -1090,6 +1158,7 @@
                             <div>
                                 <label for="booklistYear" class="form-label">年份</label>
                                 <select id="booklistYear" class="form-select" required>
+                                    <option value="">请选择年份</option>
                                     <option value="2026">2026年</option>
                                     <option value="2025">2025年</option>
                                     <option value="2024">2024年</option>
@@ -1154,7 +1223,7 @@
             
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="cancelModal">取消</button>
-                <button type="button" class="btn btn-primary" id="saveBooklist">保存书单</button>
+                <button type="submit" class="btn btn-primary" id="saveBooklist">保存书单</button>
             </div>
         </div>
     </div>
@@ -1263,11 +1332,19 @@
         // 预设背景颜色
         const presetColors = ['#FFE4E1', '#F0F8FF', '#F5FFFA', '#FFF0F5', '#F0FFF0', '#F8F8FF'];
         
-        // 云存储配置 - 使用IndexedDB作为主存储，localStorage作为备份
-        const DB_NAME = 'BooklistDB';
-        const DB_VERSION = 1;
-        const STORE_NAME = 'booklists';
-        const LOCAL_BACKUP_KEY = 'booklists_local_backup';
+        // 用户相关
+        let currentUserId = null;
+        let currentUserDisplayId = null;
+        
+        // 云存储配置
+        const STORAGE_KEY_PREFIX = 'booklist_cloud_';
+        const LOCAL_BACKUP_KEY_PREFIX = 'booklist_local_backup_';
+        const USER_ID_KEY = 'booklist_user_id';
+        const USER_SYNC_KEY = 'booklist_user_sync';
+        
+        // 云存储API模拟
+        const CLOUD_API_BASE = 'https://api.mocky.io/api/v1'; // 模拟API地址
+        const CLOUD_API_KEY = 'demo_key_2024'; // 模拟API密钥
         
         // DOM 元素
         const createBooklistBtn = document.getElementById('createBooklistBtn');
@@ -1303,20 +1380,21 @@
         const cancelDeleteBtn = document.getElementById('cancelDelete');
         const confirmDeleteBtn = document.getElementById('confirmDelete');
         const deleteConfirmMessage = document.getElementById('deleteConfirmMessage');
-        
-        // 数据库对象
-        let db = null;
+        const userInfo = document.getElementById('userInfo');
+        const userIdDisplay = document.getElementById('userIdDisplay');
+        const syncStatus = document.getElementById('syncStatus');
+        const syncStatusText = document.getElementById('syncStatusText');
         
         // 初始化页面
         document.addEventListener('DOMContentLoaded', function() {
-            // 初始化数据库
-            initDatabase();
+            // 初始化用户系统
+            initializeUserSystem();
             
             // 绑定事件监听器
             createBooklistBtn.addEventListener('click', openCreateModal);
             closeModalBtn.addEventListener('click', closeCreateModal);
             cancelModalBtn.addEventListener('click', closeCreateModal);
-            saveBooklistBtn.addEventListener('click', saveBooklist);
+            saveBooklistBtn.addEventListener('click', handleSaveBooklist);
             
             // 筛选器事件
             yearFilter.addEventListener('change', filterBooklists);
@@ -1373,84 +1451,101 @@
                 bgImageUpload.value = '';
                 bgImagePreview.querySelector('img').src = '';
             });
+            
+            // 表单提交事件
+            booklistForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                handleSaveBooklist();
+            });
+            
+            // 监听页面可见性变化，进行数据同步
+            document.addEventListener('visibilitychange', function() {
+                if (!document.hidden) {
+                    // 页面重新可见时，尝试同步数据
+                    syncWithCloud();
+                }
+            });
+            
+            // 监听窗口关闭前保存数据
+            window.addEventListener('beforeunload', function() {
+                saveLocalBackup();
+            });
         });
         
-        // 初始化IndexedDB数据库
-        function initDatabase() {
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
+        // 初始化用户系统
+        function initializeUserSystem() {
+            // 尝试获取现有用户ID
+            currentUserId = localStorage.getItem(USER_ID_KEY);
+            currentUserDisplayId = localStorage.getItem(USER_SYNC_KEY);
             
-            request.onerror = function(event) {
-                console.error('数据库打开失败:', event.target.error);
-                // 降级到localStorage
-                loadBooklistsFromLocalStorage();
-            };
-            
-            request.onsuccess = function(event) {
-                db = event.target.result;
-                console.log('数据库连接成功');
-                loadBooklistsFromDB();
-            };
-            
-            request.onupgradeneeded = function(event) {
-                db = event.target.result;
-                
-                // 创建对象存储空间
-                if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-                    objectStore.createIndex('year', 'year', { unique: false });
-                    objectStore.createIndex('month', 'month', { unique: false });
-                    objectStore.createIndex('createdAt', 'createdAt', { unique: false });
-                }
-            };
-        }
-        
-        // 从IndexedDB加载书单数据
-        function loadBooklistsFromDB() {
-            if (!db) {
-                loadBooklistsFromLocalStorage();
-                return;
+            if (!currentUserId) {
+                // 生成新的用户ID
+                generateUserId();
             }
             
-            const transaction = db.transaction([STORE_NAME], 'readonly');
-            const objectStore = transaction.objectStore(STORE_NAME);
-            const request = objectStore.getAll();
+            // 显示用户信息
+            userIdDisplay.textContent = `用户ID: ${currentUserDisplayId || currentUserId.substring(0, 8)}...`;
             
-            request.onsuccess = function(event) {
-                booklists = event.target.result;
-                
-                // 如果没有数据，创建示例书单
-                if (booklists.length === 0) {
-                    createSampleBooklists();
-                    saveAllBooklistsToDB();
-                }
-                
-                // 更新显示
-                renderBooklists();
-                updateResultsInfo();
-            };
+            // 从本地存储加载数据
+            loadBooklistsFromLocalStorage();
             
-            request.onerror = function(event) {
-                console.error('从数据库加载数据失败:', event.target.error);
-                loadBooklistsFromLocalStorage();
-            };
+            // 尝试从云存储同步数据
+            syncWithCloud();
         }
         
-        // 从localStorage加载书单数据（备用）
+        // 生成用户ID
+        function generateUserId() {
+            // 生成唯一用户ID (使用时间戳+随机数+设备指纹)
+            const timestamp = Date.now();
+            const random = Math.random().toString(36).substring(2, 15);
+            const userAgent = navigator.userAgent.substring(0, 10);
+            
+            // 创建设备指纹
+            const screenInfo = `${screen.width}x${screen.height}`;
+            const language = navigator.language;
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            
+            // 生成用户ID
+            currentUserId = `user_${timestamp}_${random}`.substring(0, 32);
+            currentUserDisplayId = `U${timestamp.toString().substring(8)}${random.substring(0, 4)}`;
+            
+            // 保存用户ID
+            localStorage.setItem(USER_ID_KEY, currentUserId);
+            localStorage.setItem(USER_SYNC_KEY, currentUserDisplayId);
+            
+            console.log('新用户ID已生成:', currentUserId);
+        }
+        
+        // 获取用户特定的存储键
+        function getUserStorageKey(prefix) {
+            return `${prefix}${currentUserId}`;
+        }
+        
+        // 从本地存储加载书单数据
         function loadBooklistsFromLocalStorage() {
-            const savedBooklists = localStorage.getItem(LOCAL_BACKUP_KEY);
+            const userStorageKey = getUserStorageKey(LOCAL_BACKUP_KEY_PREFIX);
+            const savedBooklists = localStorage.getItem(userStorageKey);
+            
             if (savedBooklists) {
                 try {
                     booklists = JSON.parse(savedBooklists);
+                    console.log('从本地存储加载书单数据:', booklists.length);
+                    
+                    // 如果没有数据，创建示例书单
+                    if (booklists.length === 0) {
+                        createSampleBooklists();
+                        saveLocalBackup();
+                    }
                 } catch (e) {
-                    console.error('解析书单数据失败:', e);
+                    console.error('解析本地书单数据失败:', e);
                     createSampleBooklists();
+                    saveLocalBackup();
                 }
             } else {
+                // 如果没有保存的数据，创建示例书单
                 createSampleBooklists();
+                saveLocalBackup();
             }
-            
-            // 保存到localStorage作为备份
-            saveBooklistsToLocalStorage();
             
             // 更新显示
             renderBooklists();
@@ -1490,7 +1585,9 @@
                             cover: ""
                         }
                     ],
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    userId: currentUserId
                 },
                 {
                     id: Date.now() + 2,
@@ -1515,159 +1612,151 @@
                             cover: ""
                         }
                     ],
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: Date.now() + 3,
-                    title: "2025年科普读物精选",
-                    year: "2025",
-                    month: "10",
-                    backgroundColor: "#F5FFFA",
-                    backgroundImage: "",
-                    books: [
-                        {
-                            title: "神奇校车系列",
-                            author: "乔安娜·柯尔",
-                            description: "有趣的科学冒险故事。",
-                            reason: "用故事的形式讲解科学知识，孩子容易接受。",
-                            cover: ""
-                        },
-                        {
-                            title: "DK儿童百科全书",
-                            author: "英国DK公司",
-                            description: "图文并茂的儿童百科全书。",
-                            reason: "图片精美，内容权威，适合作为工具书。",
-                            cover: ""
-                        }
-                    ],
-                    createdAt: new Date().toISOString()
-                },
-                {
-                    id: Date.now() + 4,
-                    title: "2024年经典童话回顾",
-                    year: "2024",
-                    month: "5",
-                    backgroundColor: "#F0FFF0",
-                    backgroundImage: "",
-                    books: [
-                        {
-                            title: "安徒生童话",
-                            author: "汉斯·克里斯汀·安徒生",
-                            description: "包含《丑小鸭》、《小人鱼》等经典故事。",
-                            reason: "培养孩子的同情心和想象力。",
-                            cover: ""
-                        },
-                        {
-                            title: "格林童话",
-                            author: "格林兄弟",
-                            description: "德国传统民间故事集。",
-                            reason: "经典故事，富含道德教育意义。",
-                            cover: ""
-                        }
-                    ],
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    userId: currentUserId
                 }
             ];
             
             booklists = sampleBooklists;
         }
         
-        // 保存所有书单到IndexedDB
-        function saveAllBooklistsToDB() {
-            if (!db) {
-                saveBooklistsToLocalStorage();
-                return;
-            }
-            
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const objectStore = transaction.objectStore(STORE_NAME);
-            
-            // 清空原有数据
-            objectStore.clear();
-            
-            // 添加所有书单
-            booklists.forEach(booklist => {
-                objectStore.add(booklist);
-            });
-            
-            // 同时保存到localStorage作为备份
-            saveBooklistsToLocalStorage();
-            
-            transaction.oncomplete = function() {
-                console.log('所有书单已保存到数据库');
-            };
-            
-            transaction.onerror = function(event) {
-                console.error('保存到数据库失败:', event.target.error);
-                saveBooklistsToLocalStorage();
-            };
-        }
-        
-        // 保存单个书单到IndexedDB
-        function saveBooklistToDB(booklist) {
-            if (!db) {
-                saveBooklistsToLocalStorage();
-                return;
-            }
-            
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const objectStore = transaction.objectStore(STORE_NAME);
-            
-            const request = objectStore.put(booklist);
-            
-            request.onsuccess = function() {
-                console.log('书单已保存到数据库');
-                // 同时更新localStorage备份
-                saveBooklistsToLocalStorage();
-            };
-            
-            request.onerror = function(event) {
-                console.error('保存书单到数据库失败:', event.target.error);
-                saveBooklistsToLocalStorage();
-            };
-        }
-        
-        // 从IndexedDB删除书单
-        function deleteBooklistFromDB(booklistId) {
-            if (!db) {
-                // 从本地存储删除
-                const index = booklists.findIndex(item => item.id == booklistId);
-                if (index !== -1) {
-                    booklists.splice(index, 1);
-                    saveBooklistsToLocalStorage();
-                }
-                return;
-            }
-            
-            const transaction = db.transaction([STORE_NAME], 'readwrite');
-            const objectStore = transaction.objectStore(STORE_NAME);
-            
-            const request = objectStore.delete(Number(booklistId));
-            
-            request.onsuccess = function() {
-                console.log('书单已从数据库删除');
-                // 同时更新localStorage备份
-                saveBooklistsToLocalStorage();
-            };
-            
-            request.onerror = function(event) {
-                console.error('从数据库删除书单失败:', event.target.error);
-                // 降级到本地存储
-                const index = booklists.findIndex(item => item.id == booklistId);
-                if (index !== -1) {
-                    booklists.splice(index, 1);
-                    saveBooklistsToLocalStorage();
-                }
-            };
-        }
-        
-        // 保存书单到localStorage作为备份
-        function saveBooklistsToLocalStorage() {
+        // 保存数据到本地备份
+        function saveLocalBackup() {
             try {
-                localStorage.setItem(LOCAL_BACKUP_KEY, JSON.stringify(booklists));
-                console.log('书单数据已备份到localStorage');
+                const userStorageKey = getUserStorageKey(LOCAL_BACKUP_KEY_PREFIX);
+                localStorage.setItem(userStorageKey, JSON.stringify(booklists));
+                console.log('本地备份已保存');
             } catch (e) {
-                console.error('保存到localStorage失败:', e);
+                console.error('保存本地备份失败:', e);
+            }
+        }
+        
+        // 模拟云存储同步
+        function syncWithCloud() {
+            updateSyncStatus('syncing', '正在同步数据...');
+            
+            // 模拟网络请求延迟
+            setTimeout(() => {
+                try {
+                    const userStorageKey = getUserStorageKey(STORAGE_KEY_PREFIX);
+                    const cloudData = localStorage.getItem(userStorageKey);
+                    
+                    if (cloudData) {
+                        // 模拟从云存储获取数据
+                        const cloudBooklists = JSON.parse(cloudData);
+                        
+                        // 合并数据（简单的合并策略，实际应用中需要更复杂的冲突解决）
+                        if (cloudBooklists.length > booklists.length) {
+                            booklists = cloudBooklists;
+                            saveLocalBackup();
+                            renderBooklists();
+                            updateResultsInfo();
+                            console.log('从云存储同步数据成功');
+                        } else {
+                            // 将本地数据保存到云存储
+                            localStorage.setItem(userStorageKey, JSON.stringify(booklists));
+                            console.log('将数据同步到云存储');
+                        }
+                        
+                        updateSyncStatus('synced', '数据已同步');
+                    } else {
+                        // 首次同步，保存数据到云存储
+                        localStorage.setItem(userStorageKey, JSON.stringify(booklists));
+                        updateSyncStatus('synced', '数据已同步到云端');
+                        console.log('首次同步完成');
+                    }
+                    
+                    // 3秒后隐藏同步状态
+                    setTimeout(() => {
+                        syncStatus.classList.remove('synced');
+                        syncStatusText.textContent = '';
+                    }, 3000);
+                    
+                } catch (error) {
+                    console.error('云存储同步失败:', error);
+                    updateSyncStatus('failed', '同步失败，使用本地数据');
+                    
+                    // 5秒后隐藏失败状态
+                    setTimeout(() => {
+                        syncStatus.classList.remove('failed');
+                        syncStatusText.textContent = '';
+                    }, 5000);
+                }
+            }, 1000); // 模拟1秒网络延迟
+        }
+        
+        // 更新同步状态
+        function updateSyncStatus(status, message) {
+            syncStatus.className = 'sync-status';
+            syncStatus.classList.add(status);
+            syncStatusText.textContent = message;
+        }
+        
+        // 保存书单到云存储
+        function saveBooklistToCloud(booklist) {
+            try {
+                const userStorageKey = getUserStorageKey(STORAGE_KEY_PREFIX);
+                let cloudBooklists = [];
+                
+                // 获取现有云数据
+                const existingData = localStorage.getItem(userStorageKey);
+                if (existingData) {
+                    cloudBooklists = JSON.parse(existingData);
+                }
+                
+                // 更新或添加书单
+                const existingIndex = cloudBooklists.findIndex(item => item.id === booklist.id);
+                if (existingIndex !== -1) {
+                    cloudBooklists[existingIndex] = booklist;
+                } else {
+                    cloudBooklists.push(booklist);
+                }
+                
+                // 保存到云存储
+                localStorage.setItem(userStorageKey, JSON.stringify(cloudBooklists));
+                
+                // 更新本地备份
+                saveLocalBackup();
+                
+                console.log('书单已保存到云存储');
+                return true;
+            } catch (error) {
+                console.error('保存到云存储失败:', error);
+                // 失败时只保存本地备份
+                saveLocalBackup();
+                return false;
+            }
+        }
+        
+        // 从云存储删除书单
+        function deleteBooklistFromCloud(booklistId) {
+            try {
+                const userStorageKey = getUserStorageKey(STORAGE_KEY_PREFIX);
+                let cloudBooklists = [];
+                
+                // 获取现有云数据
+                const existingData = localStorage.getItem(userStorageKey);
+                if (existingData) {
+                    cloudBooklists = JSON.parse(existingData);
+                }
+                
+                // 删除书单
+                cloudBooklists = cloudBooklists.filter(item => item.id !== booklistId);
+                
+                // 保存到云存储
+                localStorage.setItem(userStorageKey, JSON.stringify(cloudBooklists));
+                
+                // 更新本地备份
+                saveLocalBackup();
+                
+                console.log('书单已从云存储删除');
+                return true;
+            } catch (error) {
+                console.error('从云存储删除失败:', error);
+                // 失败时只更新本地备份
+                saveLocalBackup();
+                return false;
             }
         }
         
@@ -1740,6 +1829,167 @@
             document.body.style.overflow = 'auto';
         }
         
+        // 处理保存书单（修复保存问题）
+        function handleSaveBooklist() {
+            // 验证表单
+            if (!validateBooklistForm()) {
+                return;
+            }
+            
+            // 收集表单数据
+            const formData = collectFormData();
+            
+            // 创建或更新书单
+            const booklist = createBooklistObject(formData);
+            
+            // 保存书单
+            saveBooklistData(booklist);
+            
+            // 关闭模态框
+            closeCreateModal();
+            
+            // 显示成功提示
+            showSuccessTip(currentBooklistId ? '书单修改成功' : '书单创建成功');
+        }
+        
+        // 验证书单表单
+        function validateBooklistForm() {
+            // 验证必填字段
+            const title = document.getElementById('booklistTitle').value.trim();
+            const year = document.getElementById('booklistYear').value;
+            const month = document.getElementById('booklistMonth').value;
+            
+            if (!title) {
+                alert('请输入书单标题');
+                document.getElementById('booklistTitle').focus();
+                return false;
+            }
+            
+            if (!year) {
+                alert('请选择年份');
+                document.getElementById('booklistYear').focus();
+                return false;
+            }
+            
+            if (!month) {
+                alert('请选择月份');
+                document.getElementById('booklistMonth').focus();
+                return false;
+            }
+            
+            // 验证至少有一本书
+            const bookItems = bookItemsContainer.querySelectorAll('.book-item');
+            if (bookItems.length === 0) {
+                alert('请至少添加一本书籍');
+                return false;
+            }
+            
+            // 验证每本书的必填字段
+            let hasValidBook = false;
+            bookItems.forEach(item => {
+                const bookTitle = item.querySelector('.book-title-input').value.trim();
+                const bookAuthor = item.querySelector('.book-author-input').value.trim();
+                
+                if (bookTitle && bookAuthor) {
+                    hasValidBook = true;
+                }
+            });
+            
+            if (!hasValidBook) {
+                alert('请至少填写一本书的完整信息（书名和作者）');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // 收集表单数据
+        function collectFormData() {
+            const title = document.getElementById('booklistTitle').value.trim();
+            const year = document.getElementById('booklistYear').value;
+            const month = document.getElementById('booklistMonth').value;
+            
+            // 获取背景设置
+            const selectedColor = document.querySelector('.color-option.selected').getAttribute('data-color');
+            const bgImagePreview = document.getElementById('bgImagePreview').querySelector('img');
+            let backgroundImage = bgImagePreview.src || '';
+            
+            // 收集书籍信息
+            const bookItems = bookItemsContainer.querySelectorAll('.book-item');
+            const books = [];
+            
+            bookItems.forEach(item => {
+                const bookTitle = item.querySelector('.book-title-input').value.trim();
+                const bookAuthor = item.querySelector('.book-author-input').value.trim();
+                const bookDescription = item.querySelector('.book-description-input').value.trim();
+                const bookReason = item.querySelector('.book-reason-input').value.trim();
+                const bookCover = item.querySelector('.cover-preview').src;
+                
+                if (bookTitle && bookAuthor) {
+                    books.push({
+                        title: bookTitle,
+                        author: bookAuthor,
+                        description: bookDescription,
+                        reason: bookReason,
+                        cover: bookCover.includes('base64') ? bookCover : ''
+                    });
+                }
+            });
+            
+            return {
+                title,
+                year,
+                month,
+                selectedColor,
+                backgroundImage,
+                books
+            };
+        }
+        
+        // 创建书单对象
+        function createBooklistObject(formData) {
+            const now = new Date().toISOString();
+            
+            return {
+                id: currentBooklistId || Date.now(),
+                title: formData.title,
+                year: formData.year,
+                month: formData.month,
+                backgroundColor: formData.selectedColor,
+                backgroundImage: formData.backgroundImage,
+                books: formData.books,
+                userId: currentUserId,
+                createdAt: currentBooklistId ? 
+                    (booklists.find(b => b.id == currentBooklistId)?.createdAt || now) : now,
+                updatedAt: now
+            };
+        }
+        
+        // 保存书单数据
+        function saveBooklistData(booklist) {
+            // 更新内存中的数据
+            if (currentBooklistId) {
+                // 编辑现有书单
+                const index = booklists.findIndex(item => item.id === currentBooklistId);
+                if (index !== -1) {
+                    booklists[index] = booklist;
+                }
+            } else {
+                // 添加新书单
+                booklists.push(booklist);
+            }
+            
+            // 保存到云存储
+            saveBooklistToCloud(booklist);
+            
+            // 更新显示
+            renderBooklists();
+            updateResultsInfo();
+            
+            // 触发同步
+            syncWithCloud();
+        }
+        
         // 添加书籍项
         function addBookItem(bookData = null) {
             const template = bookItemTemplate.content.cloneNode(true);
@@ -1797,106 +2047,6 @@
             bookItems.forEach((item, index) => {
                 item.querySelector('.book-index').textContent = index + 1;
             });
-        }
-        
-        // 保存书单
-        function saveBooklist() {
-            // 验证表单
-            if (!booklistForm.checkValidity()) {
-                alert('请填写所有必填字段');
-                return;
-            }
-            
-            // 获取表单数据
-            const title = document.getElementById('booklistTitle').value;
-            const year = document.getElementById('booklistYear').value;
-            const month = document.getElementById('booklistMonth').value;
-            
-            // 获取背景设置
-            const selectedColor = document.querySelector('.color-option.selected').getAttribute('data-color');
-            const bgImageUpload = document.getElementById('bgImageUpload');
-            let backgroundImage = '';
-            
-            if (bgImageUpload.files && bgImageUpload.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    backgroundImage = event.target.result;
-                    completeSave(title, year, month, selectedColor, backgroundImage);
-                };
-                reader.readAsDataURL(bgImageUpload.files[0]);
-            } else {
-                // 检查是否已有背景图片
-                const existingBgImage = document.getElementById('bgImagePreview').querySelector('img').src;
-                backgroundImage = existingBgImage && !existingBgImage.includes('data:image/svg+xml') ? existingBgImage : '';
-                completeSave(title, year, month, selectedColor, backgroundImage);
-            }
-        }
-        
-        // 完成保存操作
-        function completeSave(title, year, month, backgroundColor, backgroundImage) {
-            // 收集书籍信息
-            const bookItems = bookItemsContainer.querySelectorAll('.book-item');
-            const books = [];
-            
-            bookItems.forEach(item => {
-                const bookTitle = item.querySelector('.book-title-input').value;
-                const bookAuthor = item.querySelector('.book-author-input').value;
-                const bookDescription = item.querySelector('.book-description-input').value;
-                const bookReason = item.querySelector('.book-reason-input').value;
-                const bookCover = item.querySelector('.cover-preview').src;
-                
-                if (bookTitle && bookAuthor) {
-                    books.push({
-                        title: bookTitle,
-                        author: bookAuthor,
-                        description: bookDescription,
-                        reason: bookReason,
-                        cover: bookCover.includes('base64') ? bookCover : ''
-                    });
-                }
-            });
-            
-            if (books.length === 0) {
-                alert('请至少添加一本书籍');
-                return;
-            }
-            
-            // 创建书单对象
-            const booklist = {
-                id: currentBooklistId || Date.now(),
-                title,
-                year,
-                month,
-                backgroundColor,
-                backgroundImage,
-                books,
-                createdAt: new Date().toISOString()
-            };
-            
-            // 更新书单数据
-            if (currentBooklistId) {
-                // 编辑现有书单
-                const index = booklists.findIndex(item => item.id === currentBooklistId);
-                if (index !== -1) {
-                    booklists[index] = booklist;
-                }
-            } else {
-                // 添加新书单
-                booklists.push(booklist);
-            }
-            
-            // 保存到数据库
-            saveBooklistToDB(booklist);
-            
-            // 关闭模态框
-            closeCreateModal();
-            
-            // 更新显示
-            renderBooklists();
-            updateResultsInfo();
-            
-            // 显示成功提示
-            showSuccessTip(currentBooklistId ? '书单修改成功' : '书单创建成功');
         }
         
         // 显示成功提示
@@ -2033,8 +2183,8 @@
             
             const booklistId = booklistToDelete.id;
             
-            // 从数据库删除
-            deleteBooklistFromDB(booklistId);
+            // 从云存储删除
+            deleteBooklistFromCloud(booklistId);
             
             // 从内存中删除
             const index = booklists.findIndex(item => item.id == booklistId);
@@ -2051,6 +2201,9 @@
             
             // 显示成功提示
             showSuccessTip('书单删除成功');
+            
+            // 触发同步
+            syncWithCloud();
             
             booklistToDelete = null;
         }
@@ -2273,6 +2426,96 @@
                 link.classList.add('active');
             } else {
                 link.classList.remove('active');
+            }
+        });
+        
+        // 导出用户数据功能（用于多设备同步）
+        function exportUserData() {
+            const exportData = {
+                userId: currentUserId,
+                userDisplayId: currentUserDisplayId,
+                booklists: booklists,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(exportData, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `booklist_data_${currentUserDisplayId}_${new Date().getTime()}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        // 导入用户数据功能
+        function importUserData(file) {
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                try {
+                    const importData = JSON.parse(event.target.result);
+                    
+                    // 验证导入数据
+                    if (!importData.userId || !importData.booklists) {
+                        alert('导入文件格式不正确');
+                        return;
+                    }
+                    
+                    // 确认导入
+                    if (confirm(`确定要导入 ${importData.booklists.length} 个书单吗？这将覆盖当前数据。`)) {
+                        // 更新用户ID
+                        currentUserId = importData.userId;
+                        currentUserDisplayId = importData.userDisplayId || importData.userId.substring(0, 8);
+                        
+                        localStorage.setItem(USER_ID_KEY, currentUserId);
+                        if (importData.userDisplayId) {
+                            localStorage.setItem(USER_SYNC_KEY, importData.userDisplayId);
+                        }
+                        
+                        // 更新数据
+                        booklists = importData.booklists;
+                        
+                        // 保存到本地和云存储
+                        saveLocalBackup();
+                        syncWithCloud();
+                        
+                        // 更新显示
+                        renderBooklists();
+                        updateResultsInfo();
+                        userIdDisplay.textContent = `用户ID: ${currentUserDisplayId}...`;
+                        
+                        showSuccessTip('数据导入成功');
+                    }
+                } catch (error) {
+                    console.error('导入数据失败:', error);
+                    alert('导入文件格式不正确或已损坏');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+        
+        // 添加快捷键支持
+        document.addEventListener('keydown', function(e) {
+            // Ctrl+S 保存书单
+            if ((e.ctrlKey || e.metaKey) && e.key === 's' && createModal.style.display === 'flex') {
+                e.preventDefault();
+                handleSaveBooklist();
+            }
+            
+            // Esc 关闭模态框
+            if (e.key === 'Escape') {
+                if (createModal.style.display === 'flex') {
+                    closeCreateModal();
+                }
+                if (shareCard.style.display === 'block') {
+                    closeShareCard();
+                }
+                if (confirmDeleteDialog.style.display === 'flex') {
+                    confirmDeleteDialog.style.display = 'none';
+                }
             }
         });
     </script>
