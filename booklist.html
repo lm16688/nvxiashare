@@ -240,6 +240,27 @@
         .info-label-purple {
             color: #7c3aed;
         }
+
+        /* 文件导入区域样式 */
+        .file-import-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            transition: all 0.3s;
+            background-color: #f9fafb;
+            cursor: pointer;
+        }
+        
+        .file-import-area:hover {
+            border-color: #8b5cf6;
+            background-color: #f5f3ff;
+        }
+        
+        .file-import-area.dragover {
+            border-color: #8b5cf6;
+            background-color: #ede9fe;
+        }
     </style>
 </head>
 <body>
@@ -381,12 +402,33 @@
         </div>
     </div>
 
-    <!-- 导入数据模态框 -->
+    <!-- 导入数据模态框 - 支持文件选择 -->
     <div id="importModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
         <div class="glass-effect rounded-2xl w-full max-w-lg p-6 modal-enter">
             <h3 class="text-xl font-bold mb-4 gradient-text serif">导入数据</h3>
-            <p class="text-sm text-gray-600 mb-4">请粘贴之前导出的 JSON 数据：</p>
-            <textarea id="importDataInput" rows="10" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all font-mono text-sm" placeholder="在此粘贴 JSON 数据..."></textarea>
+            
+            <!-- 文件选择区域 -->
+            <div class="file-import-area mb-4" id="fileImportArea" onclick="document.getElementById('importFileInput').click()">
+                <input type="file" id="importFileInput" accept=".json" class="hidden" onchange="handleFileImport(this)">
+                <svg class="w-12 h-12 mx-auto mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                </svg>
+                <p class="text-sm text-gray-600 mb-1">点击选择 JSON 文件</p>
+                <p class="text-xs text-gray-400">或拖拽文件到此处</p>
+            </div>
+            
+            <div class="relative mb-4">
+                <div class="absolute inset-0 flex items-center">
+                    <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                    <span class="px-2 bg-white text-gray-500">或者</span>
+                </div>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-2">直接粘贴 JSON 数据：</p>
+            <textarea id="importDataInput" rows="6" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none transition-all font-mono text-sm" placeholder="在此粘贴 JSON 数据..."></textarea>
+            
             <div class="flex gap-3 justify-end mt-4">
                 <button onclick="closeImportModal()" class="px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors">取消</button>
                 <button onclick="confirmImport()" class="px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 text-white font-medium hover:shadow-lg transition-all">确认导入</button>
@@ -425,11 +467,80 @@
             const now = new Date();
             const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
             document.getElementById('listMonth').value = yearMonth;
+            
+            // 设置拖拽导入
+            setupDragAndDrop();
         });
 
         // 保存到 localStorage（当前设备备份）
         function saveToStorage() {
             localStorage.setItem('bookLists', JSON.stringify(bookLists));
+        }
+
+        // 设置拖拽导入
+        function setupDragAndDrop() {
+            const dropZone = document.getElementById('fileImportArea');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.add('dragover');
+                }, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => {
+                    dropZone.classList.remove('dragover');
+                }, false);
+            });
+            
+            dropZone.addEventListener('drop', handleDrop, false);
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0 && files[0].name.endsWith('.json')) {
+                handleFileImport({ files: files });
+            } else {
+                alert('请选择 JSON 文件');
+            }
+        }
+
+        // 处理文件导入
+        function handleFileImport(input) {
+            const file = input.files[0];
+            if (!file) return;
+            
+            if (!file.name.endsWith('.json')) {
+                alert('请选择 JSON 格式的文件');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    document.getElementById('importDataInput').value = content;
+                    
+                    // 自动确认导入
+                    if (confirm(`确定要导入文件 "${file.name}" 吗？这将覆盖当前的所有数据。`)) {
+                        processImportData(content);
+                    }
+                } catch (error) {
+                    alert('读取文件失败：' + error.message);
+                }
+            };
+            reader.readAsText(file);
         }
 
         // 压缩图片
@@ -964,17 +1075,14 @@
         function closeImportModal() {
             document.getElementById('importModal').classList.add('hidden');
             document.getElementById('importDataInput').value = '';
+            // 重置文件输入
+            document.getElementById('importFileInput').value = '';
         }
 
-        function confirmImport() {
-            const input = document.getElementById('importDataInput').value.trim();
-            if (!input) {
-                alert('请输入数据');
-                return;
-            }
-            
+        // 处理导入数据
+        function processImportData(content) {
             try {
-                const data = JSON.parse(input);
+                const data = JSON.parse(content);
                 if (!Array.isArray(data)) {
                     throw new Error('数据格式错误');
                 }
@@ -988,19 +1096,29 @@
                     throw new Error('数据格式不正确');
                 }
                 
-                if (confirm(`确定要导入 ${data.length} 个书单吗？这将覆盖当前的所有数据。`)) {
-                    bookLists = data;
-                    saveToStorage();
-                    renderLists();
-                    closeImportModal();
-                    alert('导入成功！');
-                }
+                bookLists = data;
+                saveToStorage();
+                renderLists();
+                closeImportModal();
+                alert('导入成功！');
             } catch (e) {
                 alert('导入失败：' + e.message);
             }
         }
 
-        // 下载卡片为图片 - 优化版本，保留所有抬头标签
+        function confirmImport() {
+            const input = document.getElementById('importDataInput').value.trim();
+            if (!input) {
+                alert('请输入数据或选择文件');
+                return;
+            }
+            
+            if (confirm(`确定要导入数据吗？这将覆盖当前的所有数据。`)) {
+                processImportData(input);
+            }
+        }
+
+        // 下载卡片为图片 - 优化版本，图片保持原始尺寸
         async function downloadCard(id) {
             const list = bookLists.find(l => l.id === id);
             if (!list) return;
@@ -1015,14 +1133,15 @@
             clone.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
             clone.style.fontFamily = "'Noto Sans SC', sans-serif";
             
-            // 构建书籍列表 HTML，保留所有抬头标签
+            // 构建书籍列表 HTML，图片保持原始尺寸
             const booksHtml = list.books.map((book, index) => {
+                // 图片保持原始尺寸，使用 object-fit: contain 避免裁剪
                 let imageHtml = '';
                 if (book.image) {
                     imageHtml = `
-                        <div style="margin-top: 12px; border-radius: 8px; overflow: hidden; background: #f3f4f6;">
+                        <div style="margin-top: 12px; border-radius: 8px; overflow: hidden; background: #f3f4f6; text-align: center;">
                             <img src="${book.image}" 
-                                 style="width: 100%; max-height: 200px; object-fit: contain; display: block; background: #f3f4f6;" 
+                                 style="max-width: 100%; height: auto; max-height: 300px; object-fit: contain; display: inline-block; background: #f3f4f6;" 
                                  alt="${book.name}">
                         </div>
                     `;
