@@ -698,28 +698,6 @@
             color: #d9534f;
         }
         
-        /* 自动保存提示 */
-        .auto-save-notice {
-            position: fixed;
-            bottom: 60px;
-            left: 20px;
-            background-color: #4a90e2;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 14px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 100;
-            display: none;
-            align-items: center;
-            gap: 8px;
-            animation: slideInUp 0.3s;
-        }
-        
-        .auto-save-notice i {
-            font-size: 16px;
-        }
-        
         /* 响应式调整 */
         @media (max-width: 768px) {
             .booklist-header {
@@ -750,7 +728,7 @@
                 height: 350px;
             }
             
-            .user-info, .sync-status, .auto-save-notice {
+            .user-info, .sync-status {
                 position: static;
                 margin: 10px 0;
                 display: inline-block;
@@ -1142,12 +1120,6 @@
         <span id="syncStatusText">数据同步中...</span>
     </div>
     
-    <!-- 自动保存提示 -->
-    <div class="auto-save-notice" id="autoSaveNotice">
-        <i class="fas fa-save"></i>
-        <span id="autoSaveText">数据已自动保存为booklist.json</span>
-    </div>
-    
     <div class="container">
         <!-- 导航栏 -->
         <nav class="navbar">
@@ -1217,7 +1189,7 @@
         <!-- 页脚 -->
         <footer class="footer">
             <p>小学语文生字学习系统 | 书单分享功能</p>
-            <p class="hint">提示：书单数据已启用自动保存，每次数据更新后会自动保存为booklist.json文件</p>
+            <p class="hint">提示：书单数据已启用云同步，更换设备也不会丢失</p>
         </footer>
     </div>
     
@@ -1468,12 +1440,6 @@
         const importDataBtn = document.getElementById('importDataBtn');
         const importFileInput = document.getElementById('importFileInput');
         const resetUserBtn = document.getElementById('resetUserBtn');
-        const autoSaveNotice = document.getElementById('autoSaveNotice');
-        const autoSaveText = document.getElementById('autoSaveText');
-        
-        // 自动保存相关
-        let autoSaveTimeout = null;
-        const AUTO_SAVE_DELAY = 1000; // 1秒后自动保存
         
         // 初始化页面
         document.addEventListener('DOMContentLoaded', function() {
@@ -1573,10 +1539,7 @@
             
             // 监听窗口关闭前保存数据
             window.addEventListener('beforeunload', function() {
-                // 立即保存数据
                 saveBooklists();
-                // 立即保存为JSON文件
-                saveToJsonFile();
             });
             
             // 添加快捷键支持
@@ -1601,11 +1564,6 @@
                     userMenu.style.display = 'none';
                 }
             });
-            
-            // 页面加载时自动保存一次
-            setTimeout(() => {
-                saveToJsonFile();
-            }, 2000);
         });
         
         // 初始化用户系统
@@ -1690,7 +1648,7 @@
             updateResultsInfo();
         }
         
-        // 保存书单数据到本地存储
+        // 保存书单数据
         function saveBooklists() {
             try {
                 const storageKey = getUserStorageKey();
@@ -1702,92 +1660,12 @@
                 };
                 
                 localStorage.setItem(storageKey, JSON.stringify(dataToSave));
-                console.log('书单数据已保存到本地存储:', booklists.length);
-                
-                // 触发自动保存到JSON文件
-                scheduleAutoSave();
-                
+                console.log('书单数据已保存:', booklists.length);
                 return true;
             } catch (e) {
                 console.error('保存书单数据失败:', e);
                 return false;
             }
-        }
-        
-        // 安排自动保存
-        function scheduleAutoSave() {
-            // 清除之前的定时器
-            if (autoSaveTimeout) {
-                clearTimeout(autoSaveTimeout);
-            }
-            
-            // 设置新的定时器
-            autoSaveTimeout = setTimeout(() => {
-                saveToJsonFile();
-            }, AUTO_SAVE_DELAY);
-        }
-        
-        // 保存数据为JSON文件（模拟保存到同目录）
-        function saveToJsonFile() {
-            try {
-                // 准备要保存的数据
-                const saveData = {
-                    version: '1.0',
-                    exportDate: new Date().toISOString(),
-                    userInfo: {
-                        userId: currentUserId,
-                        userDisplayId: currentUserDisplayId
-                    },
-                    booklists: booklists,
-                    statistics: {
-                        totalBooklists: booklists.length,
-                        totalBooks: booklists.reduce((sum, list) => sum + list.books.length, 0),
-                        lastUpdated: new Date().toISOString()
-                    }
-                };
-                
-                // 将数据转换为JSON字符串
-                const jsonData = JSON.stringify(saveData, null, 2);
-                
-                // 创建Blob对象
-                const blob = new Blob([jsonData], { type: 'application/json' });
-                
-                // 创建下载链接
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement('a');
-                
-                // 设置文件名
-                link.download = 'booklist.json';
-                link.href = url;
-                
-                // 触发下载（模拟保存到同目录）
-                // 注意：这实际上会触发下载对话框，而不是直接保存到同目录
-                // 因为浏览器安全限制，不能直接写入用户文件系统
-                link.click();
-                
-                // 清理URL对象
-                URL.revokeObjectURL(url);
-                
-                // 显示自动保存提示
-                showAutoSaveNotice();
-                
-                console.log('数据已自动保存为booklist.json文件');
-                return true;
-            } catch (error) {
-                console.error('保存JSON文件失败:', error);
-                return false;
-            }
-        }
-        
-        // 显示自动保存提示
-        function showAutoSaveNotice() {
-            autoSaveText.textContent = '数据已自动保存为booklist.json';
-            autoSaveNotice.style.display = 'flex';
-            
-            // 3秒后隐藏提示
-            setTimeout(() => {
-                autoSaveNotice.style.display = 'none';
-            }, 3000);
         }
         
         // 打开创建/编辑书单模态框
