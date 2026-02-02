@@ -227,6 +227,19 @@
             height: auto;
             display: block;
         }
+
+        /* 书籍信息标签样式 */
+        .info-label {
+            font-size: 11px;
+            color: #6b7280;
+            font-weight: 600;
+            margin-bottom: 2px;
+            display: block;
+        }
+        
+        .info-label-purple {
+            color: #7c3aed;
+        }
     </style>
 </head>
 <body>
@@ -505,25 +518,59 @@
             });
         }
 
-        // 创建书单卡片
+        // 创建书单卡片 - 带抬头标签版本
         function createListCard(list) {
             const div = document.createElement('div');
             div.className = 'break-inside-avoid mb-6';
             
-            const booksHtml = list.books.map((book, index) => `
-                <div class="book-item bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100 relative group">
-                    <div class="flex items-start gap-3">
-                        <span class="flex-shrink-0 w-6 h-6 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">${index + 1}</span>
-                        <div class="flex-1 min-w-0">
-                            <h4 class="font-bold text-gray-800 text-sm leading-tight mb-1">${book.name}</h4>
-                            <p class="text-xs text-gray-500 mb-1">作者：${book.author}</p>
-                            ${book.content ? `<p class="text-xs text-gray-600 mt-1 line-clamp-2">${book.content}</p>` : ''}
-                            ${book.recommend ? `<p class="text-xs text-purple-600 mt-1 line-clamp-2 bg-purple-50 p-1.5 rounded italic">"${book.recommend}"</p>` : ''}
+            const booksHtml = list.books.map((book, index) => {
+                // 构建内容区域，带抬头标签
+                let contentHtml = '';
+                if (book.content && book.content.trim()) {
+                    contentHtml = `
+                        <div class="mt-2">
+                            <span class="info-label">内容简介：</span>
+                            <p class="text-xs text-gray-600 leading-relaxed">${book.content}</p>
                         </div>
+                    `;
+                }
+                
+                let recommendHtml = '';
+                if (book.recommend && book.recommend.trim()) {
+                    recommendHtml = `
+                        <div class="mt-2">
+                            <span class="info-label info-label-purple">推荐理由：</span>
+                            <p class="text-xs text-purple-600 bg-purple-50 p-2 rounded italic leading-relaxed">"${book.recommend}"</p>
+                        </div>
+                    `;
+                }
+                
+                let imageHtml = '';
+                if (book.image) {
+                    imageHtml = `<img src="${book.image}" class="mt-2 w-full h-32 object-cover rounded-lg" alt="${book.name}" loading="lazy">`;
+                }
+                
+                return `
+                    <div class="book-item bg-gray-50 rounded-lg p-3 mb-3 border border-gray-100 relative group">
+                        <div class="flex items-start gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center text-xs font-bold mt-0.5">${index + 1}</span>
+                            <div class="flex-1 min-w-0">
+                                <div class="mb-1">
+                                    <span class="info-label">书名：</span>
+                                    <h4 class="font-bold text-gray-800 text-sm leading-tight">${book.name}</h4>
+                                </div>
+                                <div>
+                                    <span class="info-label">作者：</span>
+                                    <p class="text-xs text-gray-500">${book.author}</p>
+                                </div>
+                                ${contentHtml}
+                                ${recommendHtml}
+                            </div>
+                        </div>
+                        ${imageHtml}
                     </div>
-                    ${book.image ? `<img src="${book.image}" class="mt-2 w-full h-32 object-cover rounded-lg" alt="${book.name}" loading="lazy">` : ''}
-                </div>
-            `).join('');
+                `;
+            }).join('');
             
             div.innerHTML = `
                 <div class="book-card bg-white rounded-2xl overflow-hidden shadow-lg" id="card-${list.id}">
@@ -953,14 +1000,14 @@
             }
         }
 
-        // 下载卡片为图片 - 优化版本，保持图片原始比例
+        // 下载卡片为图片 - 优化版本，保留所有抬头标签
         async function downloadCard(id) {
             const list = bookLists.find(l => l.id === id);
             if (!list) return;
             
             // 创建专门用于下载的容器
             const clone = document.createElement('div');
-            clone.style.width = '480px';
+            clone.style.width = '520px';
             clone.style.background = 'white';
             clone.style.padding = '0';
             clone.style.borderRadius = '16px';
@@ -968,11 +1015,10 @@
             clone.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.25)';
             clone.style.fontFamily = "'Noto Sans SC', sans-serif";
             
-            // 构建书籍列表 HTML，优化图片显示
+            // 构建书籍列表 HTML，保留所有抬头标签
             const booksHtml = list.books.map((book, index) => {
                 let imageHtml = '';
                 if (book.image) {
-                    // 使用原始图片，保持比例，设置最大高度避免过长
                     imageHtml = `
                         <div style="margin-top: 12px; border-radius: 8px; overflow: hidden; background: #f3f4f6;">
                             <img src="${book.image}" 
@@ -982,17 +1028,44 @@
                     `;
                 }
                 
+                // 构建内容区域，保留抬头标签
+                let contentHtml = '';
+                if (book.content && book.content.trim()) {
+                    contentHtml = `
+                        <div style="margin-top: 10px; margin-left: 36px;">
+                            <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 4px;">内容简介：</div>
+                            <div style="font-size: 13px; color: #4b5563; line-height: 1.6;">${book.content}</div>
+                        </div>
+                    `;
+                }
+                
+                let recommendHtml = '';
+                if (book.recommend && book.recommend.trim()) {
+                    recommendHtml = `
+                        <div style="margin-top: 10px; margin-left: 36px;">
+                            <div style="font-size: 12px; color: #7c3aed; font-weight: 600; margin-bottom: 4px;">推荐理由：</div>
+                            <div style="font-size: 13px; color: #7c3aed; padding: 10px; background: #f5f3ff; border-radius: 8px; font-style: italic; border-left: 3px solid #8b5cf6; line-height: 1.6;">${book.recommend}</div>
+                        </div>
+                    `;
+                }
+                
                 return `
                     <div style="margin-bottom: 20px; padding: 16px; background: #f9fafb; border-radius: 12px; border: 1px solid #e5e7eb;">
-                        <div style="display: flex; gap: 12px; margin-bottom: 8px; align-items: flex-start;">
+                        <div style="display: flex; gap: 12px; align-items: flex-start;">
                             <div style="width: 28px; height: 28px; background: #ede9fe; color: #7c3aed; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; flex-shrink: 0;">${index + 1}</div>
                             <div style="flex: 1; min-width: 0;">
-                                <div style="font-weight: bold; color: #1f2937; font-size: 16px; margin-bottom: 4px; line-height: 1.4;">${book.name}</div>
-                                <div style="font-size: 13px; color: #6b7280;">作者：${book.author}</div>
+                                <div style="margin-bottom: 8px;">
+                                    <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 2px;">书名：</div>
+                                    <div style="font-weight: bold; color: #1f2937; font-size: 16px; line-height: 1.4;">${book.name}</div>
+                                </div>
+                                <div>
+                                    <div style="font-size: 12px; color: #6b7280; font-weight: 600; margin-bottom: 2px;">作者：</div>
+                                    <div style="font-size: 13px; color: #4b5563;">${book.author}</div>
+                                </div>
                             </div>
                         </div>
-                        ${book.content ? `<div style="font-size: 13px; color: #4b5563; margin-top: 10px; line-height: 1.6; margin-left: 40px;">${book.content}</div>` : ''}
-                        ${book.recommend ? `<div style="font-size: 13px; color: #7c3aed; margin-top: 10px; padding: 10px; background: #f5f3ff; border-radius: 8px; font-style: italic; margin-left: 40px; border-left: 3px solid #8b5cf6;">"${book.recommend}"</div>` : ''}
+                        ${contentHtml}
+                        ${recommendHtml}
                         ${imageHtml}
                     </div>
                 `;
@@ -1015,14 +1088,13 @@
             
             try {
                 const canvas = await html2canvas(clone, {
-                    scale: 2, // 保持2倍清晰度
+                    scale: 2,
                     useCORS: true,
                     allowTaint: true,
                     backgroundColor: '#ffffff',
                     logging: false,
-                    imageTimeout: 0, // 不限制图片加载时间
+                    imageTimeout: 0,
                     onclone: function(clonedDoc) {
-                        // 确保所有图片都加载完成
                         const images = clonedDoc.querySelectorAll('img');
                         images.forEach(img => {
                             img.crossOrigin = 'anonymous';
@@ -1030,7 +1102,7 @@
                     }
                 });
                 
-                const image = canvas.toDataURL('image/png', 1.0); // 最高质量
+                const image = canvas.toDataURL('image/png', 1.0);
                 
                 const preview = document.getElementById('downloadPreview');
                 preview.innerHTML = `<img src="${image}" style="width: 100%; display: block; height: auto;">`;
