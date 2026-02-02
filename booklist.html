@@ -114,6 +114,14 @@
             background-color: #2c6cb0;
         }
         
+        .generate-all-btn {
+            background-color: #28a745 !important;
+        }
+        
+        .generate-all-btn:hover {
+            background-color: #218838 !important;
+        }
+        
         .results-info {
             margin-bottom: 20px;
             color: #666;
@@ -779,7 +787,6 @@
         .share-image-header {
             padding: 30px;
             flex-shrink: 0;
-            background: linear-gradient(135deg, #4a90e2 0%, #2c6cb0 100%);
             color: white;
         }
         
@@ -1441,6 +1448,9 @@
         const importFileInput = document.getElementById('importFileInput');
         const resetUserBtn = document.getElementById('resetUserBtn');
         
+        // 当前选中的背景颜色
+        let selectedBackgroundColor = '#FFE4E1';
+        
         // 初始化页面
         document.addEventListener('DOMContentLoaded', function() {
             // 初始化用户系统
@@ -1479,13 +1489,15 @@
                 successTip.style.display = 'none';
             });
             
-            // 背景颜色选择
+            // 背景颜色选择 - 修复：立即更新选中的颜色
             backgroundOptions.addEventListener('click', function(e) {
                 if (e.target.classList.contains('color-option')) {
                     document.querySelectorAll('.color-option').forEach(opt => {
                         opt.classList.remove('selected');
                     });
                     e.target.classList.add('selected');
+                    selectedBackgroundColor = e.target.getAttribute('data-color');
+                    console.log('选中背景颜色:', selectedBackgroundColor);
                 }
             });
             
@@ -1564,6 +1576,9 @@
                     userMenu.style.display = 'none';
                 }
             });
+            
+            // 添加生成全部书单按钮
+            addGenerateAllButton();
         });
         
         // 初始化用户系统
@@ -1579,9 +1594,6 @@
             
             // 显示用户信息
             updateUserDisplay();
-            
-            console.log('当前用户ID:', currentUserId);
-            console.log('当前用户显示ID:', currentUserDisplayId);
         }
         
         // 生成用户ID
@@ -1596,8 +1608,6 @@
             // 保存用户ID
             localStorage.setItem(USER_ID_KEY, currentUserId);
             localStorage.setItem(USER_DISPLAY_ID_KEY, currentUserDisplayId);
-            
-            console.log('新用户ID已生成:', currentUserId);
         }
         
         // 更新用户显示信息
@@ -1619,7 +1629,6 @@
                 try {
                     const data = JSON.parse(savedData);
                     booklists = data.booklists || [];
-                    console.log('加载书单数据:', booklists.length);
                     
                     // 如果没有数据，显示空状态
                     if (booklists.length === 0) {
@@ -1632,6 +1641,9 @@
                     renderBooklists();
                     updateResultsInfo();
                     
+                    // 更新生成全部按钮
+                    addGenerateAllButton();
+                    
                 } catch (e) {
                     console.error('解析书单数据失败:', e);
                     booklists = [];
@@ -1641,7 +1653,6 @@
                 // 没有保存的数据
                 booklists = [];
                 emptyState.style.display = 'block';
-                console.log('没有找到保存的书单数据');
             }
             
             // 更新结果信息
@@ -1660,7 +1671,6 @@
                 };
                 
                 localStorage.setItem(storageKey, JSON.stringify(dataToSave));
-                console.log('书单数据已保存:', booklists.length);
                 return true;
             } catch (e) {
                 console.error('保存书单数据失败:', e);
@@ -1681,6 +1691,7 @@
             document.querySelectorAll('.color-option').forEach((option, index) => {
                 if (index === 0) {
                     option.classList.add('selected');
+                    selectedBackgroundColor = option.getAttribute('data-color');
                 } else {
                     option.classList.remove('selected');
                 }
@@ -1701,8 +1712,6 @@
                 const booklist = booklists.find(item => item.id === currentBooklistId);
                 
                 if (booklist) {
-                    console.log('编辑书单:', booklist);
-                    
                     // 填充表单数据
                     document.getElementById('booklistTitle').value = booklist.title;
                     document.getElementById('booklistYear').value = booklist.year;
@@ -1712,6 +1721,7 @@
                     document.querySelectorAll('.color-option').forEach(option => {
                         if (option.getAttribute('data-color') === booklist.backgroundColor) {
                             option.classList.add('selected');
+                            selectedBackgroundColor = booklist.backgroundColor;
                         } else {
                             option.classList.remove('selected');
                         }
@@ -1818,14 +1828,16 @@
             return true;
         }
         
-        // 收集表单数据
+        // 收集表单数据 - 修复：正确读取选中的背景颜色
         function collectFormData() {
             const title = document.getElementById('booklistTitle').value.trim();
             const year = document.getElementById('booklistYear').value;
             const month = document.getElementById('booklistMonth').value;
             
-            // 获取背景设置
-            const selectedColor = document.querySelector('.color-option.selected').getAttribute('data-color');
+            // 获取背景设置 - 修复：直接从选中的颜色选项中获取
+            const selectedColorElement = document.querySelector('.color-option.selected');
+            const selectedColor = selectedColorElement ? selectedColorElement.getAttribute('data-color') : '#FFE4E1';
+            
             const bgImagePreview = document.getElementById('bgImagePreview').querySelector('img');
             let backgroundImage = bgImagePreview.src || '';
             
@@ -1866,7 +1878,7 @@
             const now = new Date().toISOString();
             
             if (currentBooklistId) {
-                // 编辑现有书单 - 修复：查找正确的书单
+                // 编辑现有书单
                 const index = booklists.findIndex(item => item.id === currentBooklistId);
                 if (index !== -1) {
                     // 保留原有的创建时间
@@ -1888,7 +1900,7 @@
             
             // 创建新书单
             return {
-                id: Date.now(), // 使用时间戳作为唯一ID
+                id: Date.now(),
                 title: formData.title,
                 year: formData.year,
                 month: formData.month,
@@ -1903,25 +1915,18 @@
         
         // 保存书单数据
         function saveBooklistData(booklist) {
-            console.log('保存书单数据:', booklist);
-            
             if (currentBooklistId) {
                 // 编辑现有书单
                 const index = booklists.findIndex(item => item.id === currentBooklistId);
-                console.log('找到书单索引:', index, '当前ID:', currentBooklistId);
                 
                 if (index !== -1) {
                     booklists[index] = booklist;
-                    console.log('书单已更新:', booklist);
                 } else {
-                    // 如果没有找到，添加为新书单
                     booklists.push(booklist);
-                    console.log('书单已添加为新书单:', booklist);
                 }
             } else {
                 // 添加新书单
                 booklists.push(booklist);
-                console.log('新书单已添加:', booklist);
             }
             
             // 保存到本地存储
@@ -1931,6 +1936,9 @@
                 // 更新显示
                 renderBooklists();
                 updateResultsInfo();
+                
+                // 更新生成全部按钮
+                addGenerateAllButton();
                 
                 // 更新同步状态
                 updateSyncStatus('synced', '数据已保存');
@@ -2033,8 +2041,13 @@
             
             emptyState.style.display = 'none';
             
+            // 按创建时间倒序排列
+            const sortedBooklists = [...booklistsToRender].sort((a, b) => {
+                return new Date(b.createdAt) - new Date(a.createdAt);
+            });
+            
             // 渲染每个书单
-            booklistsToRender.forEach(booklist => {
+            sortedBooklists.forEach(booklist => {
                 const card = createBooklistCard(booklist);
                 booklistContainer.appendChild(card);
             });
@@ -2046,10 +2059,10 @@
             card.className = 'booklist-card';
             card.dataset.id = booklist.id;
             
-            // 设置背景
+            // 设置背景 - 修复：确保正确应用背景颜色
             const headerStyle = booklist.backgroundImage 
                 ? `background-image: url('${booklist.backgroundImage}'); background-size: cover;`
-                : `background-color: ${booklist.backgroundColor};`;
+                : `background-color: ${booklist.backgroundColor || '#FFE4E1'};`;
             
             const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
             const monthName = monthNames[parseInt(booklist.month) - 1] || booklist.month;
@@ -2077,8 +2090,8 @@
                 <div class="booklist-footer">
                     <div class="book-count">共 ${booklist.books.length} 本书</div>
                     <div class="card-actions">
-                        <button class="card-action-btn download-card-btn" data-booklist-id="${booklist.id}" title="下载分享卡片">
-                            <i class="fas fa-download"></i> 下载
+                        <button class="card-action-btn download-card-btn" data-booklist-id="${booklist.id}" title="下载单个书单卡片">
+                            <i class="fas fa-download"></i> 下载单本
                         </button>
                         <button class="card-action-btn edit-card-btn" data-booklist-id="${booklist.id}" title="编辑书单">
                             <i class="fas fa-edit"></i> 编辑
@@ -2090,14 +2103,14 @@
                 </div>
             `;
             
-            // 添加下载按钮事件
+            // 添加下载按钮事件（下载单个书单）
             const downloadBtn = card.querySelector('.download-card-btn');
             downloadBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 const booklistId = parseInt(this.dataset.booklistId);
                 const booklist = booklists.find(item => item.id === booklistId);
                 if (booklist) {
-                    generateBooklistCard(booklist);
+                    generateBooklistCard(booklist, 'single');
                 }
             });
             
@@ -2155,6 +2168,9 @@
                 renderBooklists();
                 updateResultsInfo();
                 
+                // 更新生成全部按钮
+                addGenerateAllButton();
+                
                 // 显示成功提示
                 showSuccessTip('书单删除成功');
             }
@@ -2166,16 +2182,29 @@
         
         // 查看书单详情
         function viewBooklistDetails(booklist) {
-            // 这里可以扩展为显示更详细的书单信息
-            alert(`书单详情：${booklist.title}\n\n包含书籍：\n${booklist.books.map(book => `• ${book.title} (${book.author})`).join('\n')}`);
+            let booksText = booklist.books.map((book, index) => 
+                `${index + 1}. ${book.title} (${book.author})${book.reason ? `\n   推荐理由：${book.reason}` : ''}`
+            ).join('\n');
+            
+            alert(`书单详情：${booklist.title}\n\n创建时间：${booklist.year}年${booklist.month}月\n\n包含书籍：\n${booksText}`);
         }
         
         // 生成书单卡片图片
-        function generateBooklistCard(booklist) {
+        function generateBooklistCard(booklist, type = 'single') {
             // 显示加载动画
             loadingOverlay.style.display = 'flex';
-            loadingText.textContent = '正在生成书单卡片...';
             
+            if (type === 'all') {
+                loadingText.textContent = '正在生成全部书单卡片...';
+                generateAllBooklistsCard();
+            } else {
+                loadingText.textContent = '正在生成书单卡片...';
+                generateSingleBooklistCard(booklist);
+            }
+        }
+        
+        // 生成单个书单卡片
+        function generateSingleBooklistCard(booklist) {
             // 清空分享图片容器
             shareImageContent.innerHTML = '';
             
@@ -2187,7 +2216,7 @@
             
             const headerStyle = booklist.backgroundImage 
                 ? `background-image: url('${booklist.backgroundImage}'); background-size: cover;`
-                : `background-color: ${booklist.backgroundColor};`;
+                : `background-color: ${booklist.backgroundColor || '#FFE4E1'};`;
             
             // 单个书单卡片
             const shareImageHTML = `
@@ -2199,7 +2228,7 @@
                     ${booklist.books.map(book => `
                         <div class="share-image-book">
                             ${book.cover && book.cover.includes('base64') ? `<img src="${book.cover}" class="share-image-book-cover" alt="${book.title}">` : 
-                              `<div class="share-image-book-cover" style="background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px;">无封面</div>`}
+                              `<div class="share-image-book-cover" style="background-color: #f5f5f5; display: flex; align-items: center; justify-content: center; color: #999; font-size: 14px; text-align: center;">无封面</div>`}
                             <div class="share-image-book-info">
                                 <div class="share-image-book-title">${book.title}</div>
                                 <div class="share-image-book-author">${book.author}</div>
@@ -2217,20 +2246,116 @@
             shareImageContent.innerHTML = shareImageHTML;
             
             // 使用html2canvas生成图片
+            generateImageFromCanvas();
+        }
+        
+        // 生成全部书单卡片
+        function generateAllBooklistsCard() {
+            // 清空分享图片容器
+            shareImageContent.innerHTML = '';
+            
+            if (booklists.length === 0) {
+                loadingOverlay.style.display = 'none';
+                alert('暂无书单可生成卡片');
+                return;
+            }
+            
+            // 按年份和月份分组
+            const groupedBooklists = {};
+            booklists.forEach(booklist => {
+                const key = `${booklist.year}-${booklist.month}`;
+                if (!groupedBooklists[key]) {
+                    groupedBooklists[key] = [];
+                }
+                groupedBooklists[key].push(booklist);
+            });
+            
+            // 构建完整书单内容
+            const monthNames = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
+            
+            // 创建页头
+            const totalBooks = booklists.reduce((sum, booklist) => sum + booklist.books.length, 0);
+            
+            const shareImageHTML = `
+                <div class="share-image-header" style="background: linear-gradient(135deg, #4a90e2 0%, #2c6cb0 100%);">
+                    <div class="share-image-title">我的完整阅读书单</div>
+                    <div class="share-image-subtitle">${booklists.length} 个书单 · ${totalBooks} 本好书</div>
+                    <div class="share-image-platform">
+                        <i class="fas fa-user"></i> ${currentUserDisplayId}
+                    </div>
+                </div>
+                <div class="share-image-body">
+                    ${Object.keys(groupedBooklists).sort((a, b) => b.localeCompare(a)).map(key => {
+                        const [year, month] = key.split('-');
+                        const monthName = monthNames[parseInt(month) - 1] || month;
+                        const booklistsInMonth = groupedBooklists[key];
+                        
+                        return `
+                            <div class="share-image-booklist">
+                                <div class="share-image-booklist-title">${year}年 ${monthName}</div>
+                                <div class="share-image-booklist-info">
+                                    <span>${booklistsInMonth.length} 个书单</span>
+                                    <span>${booklistsInMonth.reduce((sum, bl) => sum + bl.books.length, 0)} 本书</span>
+                                </div>
+                                ${booklistsInMonth.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(booklist => `
+                                    <div class="share-image-book">
+                                        <div class="share-image-book-info" style="width: 100%;">
+                                            <div class="share-image-book-title">${booklist.title}</div>
+                                            <div class="share-image-book-author">共 ${booklist.books.length} 本书</div>
+                                            <div class="share-image-book-reason">
+                                                ${booklist.books.slice(0, 3).map(book => 
+                                                    `<div style="margin-bottom: 5px; padding: 5px 0; border-bottom: 1px dashed #eee;">
+                                                        <strong>${book.title}</strong> (${book.author})<br/>
+                                                        <small>${book.reason || book.description || ''}</small>
+                                                    </div>`
+                                                ).join('')}
+                                                ${booklist.books.length > 3 ? 
+                                                    `<div style="color: #666; font-style: italic; margin-top: 5px;">... 还有 ${booklist.books.length - 3} 本书</div>` : ''
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div class="share-image-footer">
+                    <div>女侠分享 · 阅读记录</div>
+                    <div class="share-image-logo">积少成多，积水成渊</div>
+                    <div style="margin-top: 10px; font-size: 12px;">生成时间：${new Date().toLocaleDateString()} ${new Date().toLocaleTimeString()}</div>
+                </div>
+            `;
+            
+            shareImageContent.innerHTML = shareImageHTML;
+            
+            // 使用html2canvas生成图片
+            generateImageFromCanvas();
+        }
+        
+        // 从Canvas生成图片
+        function generateImageFromCanvas() {
             html2canvas(shareImageGenerator, {
-                scale: 2, // 提高图片质量
+                scale: 2,
                 useCORS: true,
-                backgroundColor: null
+                backgroundColor: null,
+                logging: false,
+                allowTaint: true,
+                foreignObjectRendering: true
             }).then(canvas => {
                 // 将canvas转换为图片URL
-                const imageUrl = canvas.toDataURL('image/png');
+                const imageUrl = canvas.toDataURL('image/png', 1.0);
                 currentShareImage = imageUrl;
                 
                 // 隐藏加载动画
                 loadingOverlay.style.display = 'none';
                 
                 // 直接下载图片
-                downloadGeneratedImage(imageUrl, booklist.title);
+                if (currentBooklistForShare) {
+                    downloadGeneratedImage(imageUrl, currentBooklistForShare.title);
+                } else {
+                    downloadGeneratedImage(imageUrl, '完整书单合集');
+                }
                 
             }).catch(error => {
                 console.error('生成书单卡片失败:', error);
@@ -2367,6 +2492,9 @@
                         renderBooklists();
                         updateResultsInfo();
                         
+                        // 更新生成全部按钮
+                        addGenerateAllButton();
+                        
                         userMenu.style.display = 'none';
                         showSuccessTip('数据导入成功');
                     }
@@ -2399,8 +2527,37 @@
                 renderBooklists();
                 updateResultsInfo();
                 
+                // 更新生成全部按钮
+                addGenerateAllButton();
+                
                 userMenu.style.display = 'none';
                 showSuccessTip('用户数据已重置');
+            }
+        }
+        
+        // 添加生成全部书单按钮
+        function addGenerateAllButton() {
+            // 检查是否已存在"下载全部"按钮
+            const existingBtn = document.getElementById('generateAllBtn');
+            
+            if (booklists.length > 0) {
+                if (!existingBtn) {
+                    const generateAllBtn = document.createElement('button');
+                    generateAllBtn.id = 'generateAllBtn';
+                    generateAllBtn.className = 'create-btn generate-all-btn';
+                    generateAllBtn.innerHTML = '<i class="fas fa-download"></i>下载全部书单';
+                    
+                    generateAllBtn.addEventListener('click', function() {
+                        generateBooklistCard(null, 'all');
+                    });
+                    
+                    // 添加到控制区域
+                    const controls = document.querySelector('.booklist-controls');
+                    controls.appendChild(generateAllBtn);
+                }
+            } else if (existingBtn) {
+                // 移除按钮
+                existingBtn.remove();
             }
         }
         
