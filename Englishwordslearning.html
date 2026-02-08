@@ -4,14 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>英语高频词学习系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-           
-        /* 添加导航栏样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #4a90e2 0%, #2c6cb0 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 导航栏样式 - 与index.html统一 */
         .navbar {
-            background-color: #4a90e2;
+            background-color: rgba(255, 255, 255, 0.15);
             padding: 12px 0;
             margin-bottom: 20px;
             border-radius: 8px;
+            backdrop-filter: blur(10px);
         }
         
         .nav-container {
@@ -37,38 +57,11 @@
         }
         
         .nav-link.active {
-            background-color: #2c6cb0;
+            background-color: rgba(255, 255, 255, 0.3);
         }
         
         .nav-link i {
             margin-right: 8px;
-        }
-        
-        /* 保持原有布局不变 */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
         }
 
         .header {
@@ -81,7 +74,7 @@
         }
 
         .header h1 {
-            color: #667eea;
+            color: #4a90e2;
             font-size: 2.5em;
             margin-bottom: 10px;
         }
@@ -101,7 +94,7 @@
         .stat-number {
             font-size: 2em;
             font-weight: bold;
-            color: #667eea;
+            color: #4a90e2;
         }
 
         .stat-label {
@@ -128,14 +121,14 @@
         }
 
         .nav-btn.primary {
-            background: #667eea;
+            background: #4a90e2;
             color: white;
         }
 
         .nav-btn.primary:hover {
-            background: #5568d3;
+            background: #2c6cb0;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
         }
 
         .nav-btn.secondary {
@@ -177,12 +170,12 @@
 
         .phonetic {
             font-size: 1.5em;
-            color: #667eea;
+            color: #4a90e2;
             font-family: 'Courier New', monospace;
         }
 
         .speaker-btn {
-            background: #667eea;
+            background: #4a90e2;
             border: none;
             border-radius: 50%;
             width: 50px;
@@ -192,11 +185,11 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 15px rgba(74, 144, 226, 0.3);
         }
 
         .speaker-btn:hover {
-            background: #5568d3;
+            background: #2c6cb0;
             transform: scale(1.1);
         }
 
@@ -207,7 +200,7 @@
         }
 
         .word-info {
-            background: #f8f9ff;
+            background: #f0f7ff;
             padding: 25px;
             border-radius: 15px;
             margin-bottom: 25px;
@@ -215,7 +208,7 @@
 
         .pos {
             display: inline-block;
-            background: #667eea;
+            background: #4a90e2;
             color: white;
             padding: 5px 15px;
             border-radius: 20px;
@@ -234,12 +227,12 @@
             background: white;
             padding: 20px;
             border-radius: 10px;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #4a90e2;
             margin-top: 15px;
         }
 
         .example-label {
-            color: #667eea;
+            color: #4a90e2;
             font-weight: 600;
             margin-bottom: 10px;
             font-size: 0.9em;
@@ -281,14 +274,14 @@
         }
 
         .next-btn {
-            background: #667eea;
+            background: #4a90e2;
             color: white;
         }
 
         .next-btn:hover {
-            background: #5568d3;
+            background: #2c6cb0;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 5px 15px rgba(74, 144, 226, 0.4);
         }
 
         .mastered-list {
@@ -307,18 +300,39 @@
         }
 
         .word-card {
-            background: #f8f9ff;
+            background: #f0f7ff;
             padding: 20px;
             border-radius: 12px;
             transition: all 0.3s;
             cursor: pointer;
             border: 2px solid transparent;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .word-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
-            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(74, 144, 226, 0.2);
+            border-color: #4a90e2;
+        }
+
+        .word-card.selected {
+            background: #e3f2fd;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.3);
+        }
+
+        .word-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #4a90e2;
+        }
+
+        .word-card-content {
+            flex: 1;
         }
 
         .word-card-title {
@@ -357,13 +371,79 @@
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
+            background: linear-gradient(90deg, #4a90e2, #2c6cb0);
             transition: width 0.5s;
             border-radius: 10px;
         }
 
         .hidden {
             display: none;
+        }
+
+        /* 批量操作按钮 */
+        .batch-actions {
+            display: none;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f0f7ff;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .batch-actions.active {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .batch-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .batch-unlearn-btn {
+            background: #ed8936;
+            color: white;
+        }
+
+        .batch-unlearn-btn:hover {
+            background: #dd6b20;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(237, 137, 54, 0.4);
+        }
+
+        .batch-select-all-btn {
+            background: #4a90e2;
+            color: white;
+        }
+
+        .batch-select-all-btn:hover {
+            background: #2c6cb0;
+        }
+
+        .batch-clear-btn {
+            background: #a0aec0;
+            color: white;
+        }
+
+        .batch-clear-btn:hover {
+            background: #718096;
+        }
+
+        .selection-info {
+            color: #4a5568;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
         }
 
         @media (max-width: 768px) {
@@ -382,23 +462,38 @@
             .stats {
                 gap: 20px;
             }
+            
+            .nav-container {
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+            
+            .nav-link {
+                font-size: 16px;
+                padding: 8px 15px;
+            }
         }
     </style>
 </head>
-     <!-- 导航栏 -->
-    <nav class="navbar">
-        <div class="nav-container">
-            <a href="index.html" class="nav-link">
-                <i class="fas fa-home"></i>主页
-            </a>
-            <a href="booklist.html" class="nav-link active">
-                <i class="fas fa-pen-fancy"></i>书单分享
-            </a>
-        
-        </div>
-    </nav>
 <body>
     <div class="container">
+        <!-- 导航栏 -->
+        <nav class="navbar">
+            <div class="nav-container">
+                <a href="index.html" class="nav-link">
+                    <i class="fas fa-home"></i>主页
+                </a>
+                
+                <a href="booklist.html" class="nav-link">
+                    <i class="fas fa-pen-fancy"></i>书单分享
+                </a>
+                
+                <a href="Englishwordslearning.html" class="nav-link active">
+                    <i class="fas fa-language"></i>英语单词
+                </a>
+            </div>
+        </nav>
+
         <!-- 头部 -->
         <div class="header">
             <h1>📚 英语高频词学习系统</h1>
@@ -429,7 +524,7 @@
         <div class="card" id="learningCard">
             <div class="word-display" id="wordDisplay">
                 <div class="empty-state">
-                    <p style="font-size: 1.5em; color: #667eea;">🎉 恭喜！</p>
+                    <p style="font-size: 1.5em; color: #4a90e2;">🎉 恭喜！</p>
                     <p style="margin-top: 15px; font-size: 1.1em;">你已经掌握了所有单词！</p>
                     <p style="margin-top: 10px;">可以在"已掌握单词"中复习</p>
                 </div>
@@ -438,7 +533,22 @@
 
         <!-- 已掌握单词列表 -->
         <div class="card mastered-list" id="masteredCard">
-            <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;">✅ 已掌握的单词</h2>
+            <h2 style="color: #4a90e2; margin-bottom: 20px; text-align: center;">✅ 已掌握的单词</h2>
+            
+            <!-- 批量操作按钮 -->
+            <div class="batch-actions" id="batchActions">
+                <button class="batch-btn batch-select-all-btn" onclick="selectAllMastered()">
+                    <i class="fas fa-check-square"></i> 全选
+                </button>
+                <button class="batch-btn batch-clear-btn" onclick="clearSelection()">
+                    <i class="fas fa-times-circle"></i> 取消选择
+                </button>
+                <button class="batch-btn batch-unlearn-btn" onclick="batchUnlearn()">
+                    <i class="fas fa-undo"></i> 标记为未掌握并重新学习
+                </button>
+            </div>
+            <div class="selection-info" id="selectionInfo" style="display: none;"></div>
+            
             <div id="masteredList">
                 <div class="empty-state">
                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -459,6 +569,7 @@
         let currentWordIndex = 0;
         let masteredWordIds = new Set();
         let remainingWords = [];
+        let selectedWordIds = new Set(); // 新增：选中的单词ID
 
         // 初始化
         function init() {
@@ -500,22 +611,1101 @@
             document.getElementById('progressFill').style.width = progress + '%';
         }
 
-        // 获取音标
+        // 获取音标 - 修正后的完整音标库
         function getPhonetic(word) {
-            // 这里使用一个简化的音标映射，实际应用中可以使用API
             const phoneticMap = {
-                'the': 'ðə',
+                // 基础词汇
+                'the': 'ðə/ðiː',
                 'be': 'biː',
                 'and': 'ænd',
-                'of': 'ɒv',
-                'a': 'ə',
+                'of': 'ɒv/əv',
+                'a': 'ə/eɪ',
                 'in': 'ɪn',
-                'to': 'tuː',
+                'to': 'tuː/tə',
                 'have': 'hæv',
                 'it': 'ɪt',
-                'for': 'fɔː'
+                'I': 'aɪ',
+                'that': 'ðæt',
+                'for': 'fɔː(r)',
+                'you': 'juː',
+                'he': 'hiː',
+                'with': 'wɪð/wɪθ',
+                'on': 'ɒn',
+                'do': 'duː',
+                'say': 'seɪ',
+                'this': 'ðɪs',
+                'they': 'ðeɪ',
+                'at': 'æt',
+                'but': 'bʌt',
+                'we': 'wiː',
+                'his': 'hɪz',
+                'from': 'frɒm',
+                'not': 'nɒt',
+                "n't": 'nt',
+                'by': 'baɪ',
+                'she': 'ʃiː',
+                'or': 'ɔː(r)',
+                'as': 'æz/əz',
+                'what': 'wɒt',
+                'go': 'ɡəʊ',
+                'their': 'ðeə(r)',
+                'can': 'kæn/kən',
+                'who': 'huː',
+                'get': 'ɡet',
+                'if': 'ɪf',
+                'would': 'wʊd',
+                'her': 'hɜː(r)',
+                'all': 'ɔːl',
+                'my': 'maɪ',
+                'make': 'meɪk',
+                'about': 'əˈbaʊt',
+                'know': 'nəʊ',
+                'will': 'wɪl',
+                'up': 'ʌp',
+                'one': 'wʌn',
+                'time': 'taɪm',
+                'there': 'ðeə(r)',
+                'year': 'jɪə(r)',
+                'so': 'səʊ',
+                'think': 'θɪŋk',
+                'when': 'wen',
+                'which': 'wɪtʃ',
+                'them': 'ðem',
+                'some': 'sʌm',
+                'me': 'miː',
+                'people': 'ˈpiːpl',
+                'take': 'teɪk',
+                'out': 'aʊt',
+                'into': 'ˈɪntuː/ˈɪntə',
+                'just': 'dʒʌst',
+                'see': 'siː',
+                'him': 'hɪm',
+                'your': 'jɔː(r)',
+                'come': 'kʌm',
+                'could': 'kʊd',
+                'now': 'naʊ',
+                'than': 'ðæn',
+                'like': 'laɪk',
+                'other': 'ˈʌðə(r)',
+                'how': 'haʊ',
+                'then': 'ðen',
+                'its': 'ɪts',
+                'our': 'ˈaʊə(r)',
+                'two': 'tuː',
+                'more': 'mɔː(r)',
+                'these': 'ðiːz',
+                'want': 'wɒnt',
+                'way': 'weɪ',
+                'look': 'lʊk',
+                'first': 'fɜːst',
+                'also': 'ˈɔːlsəʊ',
+                'new': 'njuː',
+                'because': 'bɪˈkɒz',
+                'day': 'deɪ',
+                'use': 'juːz/juːs',
+                'no': 'nəʊ',
+                'man': 'mæn',
+                'find': 'faɪnd',
+                'here': 'hɪə(r)',
+                'thing': 'θɪŋ',
+                'give': 'ɡɪv',
+                'many': 'ˈmeni',
+                'well': 'wel',
+                'only': 'ˈəʊnli',
+                'those': 'ðəʊz',
+                'tell': 'tel',
+                'very': 'ˈveri',
+                'even': 'ˈiːvn',
+                'back': 'bæk',
+                'any': 'ˈeni',
+                'good': 'ɡʊd',
+                'woman': 'ˈwʊmən',
+                'through': 'θruː',
+                'us': 'ʌs/əs',
+                'life': 'laɪf',
+                'child': 'tʃaɪld',
+                'work': 'wɜːk',
+                'down': 'daʊn',
+                'may': 'meɪ',
+                'after': 'ˈɑːftə(r)',
+                'should': 'ʃʊd/ʃəd',
+                'call': 'kɔːl',
+                'world': 'wɜːld',
+                'over': 'ˈəʊvə(r)',
+                'school': 'skuːl',
+                'still': 'stɪl',
+                'try': 'traɪ',
+                'last': 'lɑːst',
+                'ask': 'ɑːsk',
+                'need': 'niːd',
+                'too': 'tuː',
+                'feel': 'fiːl',
+                'three': 'θriː',
+                'state': 'steɪt',
+                'never': 'ˈnevə(r)',
+                'become': 'bɪˈkʌm',
+                'between': 'bɪˈtwiːn',
+                'high': 'haɪ',
+                'really': 'ˈrɪəli',
+                'something': 'ˈsʌmθɪŋ',
+                'most': 'məʊst',
+                'another': 'əˈnʌðə(r)',
+                'much': 'mʌtʃ',
+                'family': 'ˈfæməli',
+                'own': 'əʊn',
+                'leave': 'liːv',
+                'put': 'pʊt',
+                'old': 'əʊld',
+                'while': 'waɪl',
+                'mean': 'miːn',
+                'keep': 'kiːp',
+                'student': 'ˈstjuːdnt',
+                'why': 'waɪ',
+                'let': 'let',
+                'great': 'ɡreɪt',
+                'same': 'seɪm',
+                'big': 'bɪɡ',
+                'group': 'ɡruːp',
+                'begin': 'bɪˈɡɪn',
+                'seem': 'siːm',
+                'country': 'ˈkʌntri',
+                'help': 'help',
+                'talk': 'tɔːk',
+                'where': 'weə(r)',
+                'turn': 'tɜːn',
+                'problem': 'ˈprɒbləm',
+                'every': 'ˈevri',
+                'start': 'stɑːt',
+                'hand': 'hænd',
+                'might': 'maɪt',
+                'American': 'əˈmerɪkən',
+                'show': 'ʃəʊ',
+                'part': 'pɑːt',
+                'against': 'əˈɡenst',
+                'place': 'pleɪs',
+                'such': 'sʌtʃ',
+                'again': 'əˈɡen',
+                'few': 'fjuː',
+                'case': 'keɪs',
+                'week': 'wiːk',
+                'company': 'ˈkʌmpəni',
+                'system': 'ˈsɪstəm',
+                'each': 'iːtʃ',
+                'right': 'raɪt',
+                'program': 'ˈprəʊɡræm',
+                'hear': 'hɪə(r)',
+                'question': 'ˈkwestʃən',
+                'during': 'ˈdjʊərɪŋ',
+                'play': 'pleɪ',
+                'government': 'ˈɡʌvənmənt',
+                'run': 'rʌn',
+                'small': 'smɔːl',
+                'number': 'ˈnʌmbə(r)',
+                'off': 'ɒf',
+                'always': 'ˈɔːlweɪz',
+                'move': 'muːv',
+                'night': 'naɪt',
+                'live': 'lɪv/laɪv',
+                'Mr': 'ˈmɪstə(r)',
+                'point': 'pɔɪnt',
+                'believe': 'bɪˈliːv',
+                'hold': 'həʊld',
+                'today': 'təˈdeɪ',
+                'bring': 'brɪŋ',
+                'happen': 'ˈhæpən',
+                'next': 'nekst',
+                'without': 'wɪˈðaʊt',
+                'before': 'bɪˈfɔː(r)',
+                'large': 'lɑːdʒ',
+                'million': 'ˈmɪljən',
+                'must': 'mʌst',
+                'home': 'həʊm',
+                'under': 'ˈʌndə(r)',
+                'water': 'ˈwɔːtə(r)',
+                'room': 'ruːm/rʊm',
+                'write': 'raɪt',
+                'mother': 'ˈmʌðə(r)',
+                'area': 'ˈeəriə',
+                'national': 'ˈnæʃnəl',
+                'money': 'ˈmʌni',
+                'story': 'ˈstɔːri',
+                'young': 'jʌŋ',
+                'fact': 'fækt',
+                'month': 'mʌnθ',
+                'different': 'ˈdɪfrənt',
+                'lot': 'lɒt',
+                'study': 'ˈstʌdi',
+                'book': 'bʊk',
+                'eye': 'aɪ',
+                'job': 'dʒɒb',
+                'word': 'wɜːd',
+                'though': 'ðəʊ',
+                'business': 'ˈbɪznəs',
+                'issue': 'ˈɪʃuː/ˈɪsjuː',
+                'side': 'saɪd',
+                'four': 'fɔː(r)',
+                'far': 'fɑː(r)',
+                'black': 'blæk',
+                'long': 'lɒŋ',
+                'both': 'bəʊθ',
+                'little': 'ˈlɪtl',
+                'house': 'haʊs',
+                'yes': 'jes',
+                'since': 'sɪns',
+                'provide': 'prəˈvaɪd',
+                'service': 'ˈsɜːvɪs',
+                'around': 'əˈraʊnd',
+                'friend': 'frend',
+                'important': 'ɪmˈpɔːtnt',
+                'father': 'ˈfɑːðə(r)',
+                'sit': 'sɪt',
+                'away': 'əˈweɪ',
+                'until': 'ənˈtɪl',
+                'power': 'ˈpaʊə(r)',
+                'hour': 'ˈaʊə(r)',
+                'game': 'ɡeɪm',
+                'often': 'ˈɒfn',
+                'yet': 'jet',
+                'line': 'laɪn',
+                'political': 'pəˈlɪtɪkl',
+                'end': 'end',
+                'among': 'əˈmʌŋ',
+                'ever': 'ˈevə(r)',
+                'stand': 'stænd',
+                'bad': 'bæd',
+                'lose': 'luːz',
+                'however': 'haʊˈevə(r)',
+                'member': 'ˈmembə(r)',
+                'pay': 'peɪ',
+                'law': 'lɔː',
+                'meet': 'miːt',
+                'car': 'kɑː(r)',
+                'city': 'ˈsɪti',
+                'almost': 'ˈɔːlməʊst',
+                'include': 'ɪnˈkluːd',
+                'continue': 'kənˈtɪnjuː',
+                'set': 'set',
+                'later': 'ˈleɪtə(r)',
+                'community': 'kəˈmjuːnəti',
+                'name': 'neɪm',
+                'five': 'faɪv',
+                'once': 'wʌns',
+                'white': 'waɪt',
+                'least': 'liːst',
+                'president': 'ˈprezɪdənt',
+                'learn': 'lɜːn',
+                'real': 'ˈriːəl/rɪəl',
+                'change': 'tʃeɪndʒ',
+                'team': 'tiːm',
+                'minute': 'ˈmɪnɪt',
+                'best': 'best',
+                'several': 'ˈsevrəl',
+                'idea': 'aɪˈdɪə',
+                'kid': 'kɪd',
+                'body': 'ˈbɒdi',
+                'information': 'ˌɪnfəˈmeɪʃn',
+                'nothing': 'ˈnʌθɪŋ',
+                'ago': 'əˈɡəʊ',
+                'lead': 'liːd',
+                'social': 'ˈsəʊʃl',
+                'understand': 'ˌʌndəˈstænd',
+                'whether': 'ˈweðə(r)',
+                'watch': 'wɒtʃ',
+                'together': 'təˈɡeðə(r)',
+                'follow': 'ˈfɒləʊ',
+                'parent': 'ˈpeərənt',
+                'stop': 'stɒp',
+                'face': 'feɪs',
+                'anything': 'ˈeniθɪŋ',
+                'create': 'kriˈeɪt',
+                'public': 'ˈpʌblɪk',
+                'already': 'ɔːlˈredi',
+                'speak': 'spiːk',
+                'others': 'ˈʌðəz',
+                'read': 'riːd',
+                'level': 'ˈlevl',
+                'allow': 'əˈlaʊ',
+                'add': 'æd',
+                'office': 'ˈɒfɪs',
+                'spend': 'spend',
+                'door': 'dɔː(r)',
+                'health': 'helθ',
+                'person': 'ˈpɜːsn',
+                'art': 'ɑːt',
+                'sure': 'ʃʊə(r)',
+                'war': 'wɔː(r)',
+                'history': 'ˈhɪstri',
+                'party': 'ˈpɑːti',
+                'within': 'wɪˈðɪn',
+                'grow': 'ɡrəʊ',
+                'result': 'rɪˈzʌlt',
+                'open': 'ˈəʊpən',
+                'morning': 'ˈmɔːnɪŋ',
+                'walk': 'wɔːk',
+                'reason': 'ˈriːzn',
+                'low': 'ləʊ',
+                'win': 'wɪn',
+                'research': 'rɪˈsɜːtʃ/ˈriːsɜːtʃ',
+                'girl': 'ɡɜːl',
+                'guy': 'ɡaɪ',
+                'food': 'fuːd',
+                'moment': 'ˈməʊmənt',
+                'himself': 'hɪmˈself',
+                'air': 'eə(r)',
+                'teacher': 'ˈtiːtʃə(r)',
+                'force': 'fɔːs',
+                'offer': 'ˈɒfə(r)',
+                'enough': 'ɪˈnʌf',
+                'education': 'ˌedʒuˈkeɪʃn',
+                'across': 'əˈkrɒs',
+                'although': 'ɔːlˈðəʊ',
+                'remember': 'rɪˈmembə(r)',
+                'foot': 'fʊt',
+                'second': 'ˈsekənd',
+                'boy': 'bɔɪ',
+                'maybe': 'ˈmeɪbi',
+                'toward': 'təˈwɔːd',
+                'able': 'ˈeɪbl',
+                'age': 'eɪdʒ',
+                'policy': 'ˈpɒləsi',
+                'everything': 'ˈevriθɪŋ',
+                'love': 'lʌv',
+                'process': 'ˈprəʊses/prəˈses',
+                'music': 'ˈmjuːzɪk',
+                'including': 'ɪnˈkluːdɪŋ',
+                'consider': 'kənˈsɪdə(r)',
+                'appear': 'əˈpɪə(r)',
+                'actually': 'ˈæktʃuəli',
+                'buy': 'baɪ',
+                'probably': 'ˈprɒbəbli',
+                'human': 'ˈhjuːmən',
+                'wait': 'weɪt',
+                'serve': 'sɜːv',
+                'market': 'ˈmɑːkɪt',
+                'die': 'daɪ',
+                'send': 'send',
+                'expect': 'ɪkˈspekt',
+                'sense': 'sens',
+                'build': 'bɪld',
+                'stay': 'steɪ',
+                'fall': 'fɔːl',
+                'oh': 'əʊ',
+                'nation': 'ˈneɪʃn',
+                'plan': 'plæn',
+                'cut': 'kʌt',
+                'college': 'ˈkɒlɪdʒ',
+                'interest': 'ˈɪntrəst/ˈɪntrest',
+                'death': 'deθ',
+                'course': 'kɔːs',
+                'someone': 'ˈsʌmwʌn',
+                'experience': 'ɪkˈspɪəriəns',
+                'behind': 'bɪˈhaɪnd',
+                'reach': 'riːtʃ',
+                'local': 'ˈləʊkl',
+                'kill': 'kɪl',
+                'six': 'sɪks',
+                'remain': 'rɪˈmeɪn',
+                'effect': 'ɪˈfekt',
+                'yeah': 'jeə',
+                'suggest': 'səˈdʒest',
+                'class': 'klɑːs',
+                'control': 'kənˈtrəʊl',
+                'raise': 'reɪz',
+                'care': 'keə(r)',
+                'perhaps': 'pəˈhæps',
+                'late': 'leɪt',
+                'hard': 'hɑːd',
+                'field': 'fiːld',
+                'else': 'els',
+                'pass': 'pɑːs',
+                'sell': 'sel',
+                'major': 'ˈmeɪdʒə(r)',
+                'sometimes': 'ˈsʌmtaɪmz',
+                'require': 'rɪˈkwaɪə(r)',
+                'along': 'əˈlɒŋ',
+                'development': 'dɪˈveləpmənt',
+                'themselves': 'ðəmˈselvz',
+                'report': 'rɪˈpɔːt',
+                'role': 'rəʊl',
+                'better': 'ˈbetə(r)',
+                'economic': 'ˌiːkəˈnɒmɪk',
+                'effort': 'ˈefət',
+                'decide': 'dɪˈsaɪd',
+                'rate': 'reɪt',
+                'strong': 'strɒŋ',
+                'possible': 'ˈpɒsəbl',
+                'heart': 'hɑːt',
+                'drug': 'drʌɡ',
+                'leader': 'ˈliːdə(r)',
+                'light': 'laɪt',
+                'voice': 'vɔɪs',
+                'wife': 'waɪf',
+                'whole': 'həʊl',
+                'police': 'pəˈliːs',
+                'mind': 'maɪnd',
+                'finally': 'ˈfaɪnəli',
+                'pull': 'pʊl',
+                'return': 'rɪˈtɜːn',
+                'explain': 'ɪkˈspleɪn',
+                'carry': 'ˈkæri',
+                'develop': 'dɪˈveləp',
+                'view': 'vjuː',
+                'free': 'friː',
+                'common': 'ˈkɒmən',
+                'short': 'ʃɔːt',
+                'tax': 'tæks',
+                'matter': 'ˈmætə(r)',
+                'particular': 'pəˈtɪkjələ(r)',
+                'attention': 'əˈtenʃn',
+                'value': 'ˈvæljuː',
+                'action': 'ˈækʃn',
+                'model': 'ˈmɒdl',
+                'season': 'ˈsiːzn',
+                'early': 'ˈɜːli',
+                'position': 'pəˈzɪʃn',
+                'player': 'ˈpleɪə(r)',
+                'agree': 'əˈɡriː',
+                'especially': 'ɪˈspeʃəli',
+                'record': 'ˈrekɔːd/rɪˈkɔːd',
+                'pick': 'pɪk',
+                'wear': 'weə(r)',
+                'paper': 'ˈpeɪpə(r)',
+                'space': 'speɪs',
+                'ground': 'ɡraʊnd',
+                'form': 'fɔːm',
+                'support': 'səˈpɔːt',
+                'event': 'ɪˈvent',
+                'official': 'əˈfɪʃl',
+                'whose': 'huːz',
+                'couple': 'ˈkʌpl',
+                'site': 'saɪt',
+                'project': 'ˈprɒdʒekt/prəˈdʒekt',
+                'hit': 'hɪt',
+                'base': 'beɪs',
+                'activity': 'ækˈtɪvəti',
+                'star': 'stɑː(r)',
+                'table': 'ˈteɪbl',
+                'court': 'kɔːt',
+                'produce': 'prəˈdjuːs',
+                'eat': 'iːt',
+                'teach': 'tiːtʃ',
+                'oil': 'ɔɪl',
+                'half': 'hɑːf',
+                'situation': 'ˌsɪtʃuˈeɪʃn',
+                'easy': 'ˈiːzi',
+                'cost': 'kɒst',
+                'industry': 'ˈɪndəstri',
+                'figure': 'ˈfɪɡə(r)',
+                'street': 'striːt',
+                'image': 'ˈɪmɪdʒ',
+                'itself': 'ɪtˈself',
+                'phone': 'fəʊn',
+                'either': 'ˈaɪðə(r)/ˈiːðə(r)',
+                'data': 'ˈdeɪtə/ˈdɑːtə',
+                'cover': 'ˈkʌvə(r)',
+                'quite': 'kwaɪt',
+                'picture': 'ˈpɪktʃə(r)',
+                'clear': 'klɪə(r)',
+                'practice': 'ˈpræktɪs',
+                'piece': 'piːs',
+                'land': 'lænd',
+                'recent': 'ˈriːsnt',
+                'describe': 'dɪˈskraɪb',
+                'product': 'ˈprɒdʌkt',
+                'doctor': 'ˈdɒktə(r)',
+                'wall': 'wɔːl',
+                'patient': 'ˈpeɪʃnt',
+                'worker': 'ˈwɜːkə(r)',
+                'news': 'njuːz',
+                'test': 'test',
+                'movie': 'ˈmuːvi',
+                'certain': 'ˈsɜːtn',
+                'north': 'nɔːθ',
+                'personal': 'ˈpɜːsənl',
+                'simply': 'ˈsɪmpli',
+                'third': 'θɜːd',
+                'technology': 'tekˈnɒlədʒi',
+                'catch': 'kætʃ',
+                'step': 'step',
+                'baby': 'ˈbeɪbi',
+                'computer': 'kəmˈpjuːtə(r)',
+                'type': 'taɪp',
+                'draw': 'drɔː',
+                'film': 'fɪlm',
+                'Republican': 'rɪˈpʌblɪkən',
+                'tree': 'triː',
+                'source': 'sɔːs',
+                'red': 'red',
+                'nearly': 'ˈnɪəli',
+                'organization': 'ˌɔːɡənaɪˈzeɪʃn',
+                'choose': 'tʃuːz',
+                'cause': 'kɔːz',
+                'hair': 'heə(r)',
+                'point': 'pɔɪnt',
+                'century': 'ˈsentʃəri',
+                'evidence': 'ˈevɪdəns',
+                'window': 'ˈwɪndəʊ',
+                'difficult': 'ˈdɪfɪkəlt',
+                'listen': 'ˈlɪsn',
+                'soon': 'suːn',
+                'culture': 'ˈkʌltʃə(r)',
+                'billion': 'ˈbɪljən',
+                'chance': 'tʃɑːns',
+                'brother': 'ˈbrʌðə(r)',
+                'energy': 'ˈenədʒi',
+                'period': 'ˈpɪəriəd',
+                'summer': 'ˈsʌmə(r)',
+                'less': 'les',
+                'realize': 'ˈrɪəlaɪz',
+                'hundred': 'ˈhʌndrəd',
+                'available': 'əˈveɪləbl',
+                'plant': 'plɑːnt',
+                'likely': 'ˈlaɪkli',
+                'opportunity': 'ˌɒpəˈtjuːnəti',
+                'term': 'tɜːm',
+                'letter': 'ˈletə(r)',
+                'condition': 'kənˈdɪʃn',
+                'choice': 'tʃɔɪs',
+                'single': 'ˈsɪŋɡl',
+                'rule': 'ruːl',
+                'daughter': 'ˈdɔːtə(r)',
+                'administration': 'ədˌmɪnɪˈstreɪʃn',
+                'south': 'saʊθ',
+                'husband': 'ˈhʌzbənd',
+                'Congress': 'ˈkɒŋɡres',
+                'floor': 'flɔː(r)',
+                'campaign': 'kæmˈpeɪn',
+                'material': 'məˈtɪəriəl',
+                'population': 'ˌpɒpjuˈleɪʃn',
+                'economy': 'ɪˈkɒnəmi',
+                'medical': 'ˈmedɪkl',
+                'hospital': 'ˈhɒspɪtl',
+                'church': 'tʃɜːtʃ',
+                'close': 'kləʊz/kləʊs',
+                'thousand': 'ˈθaʊznd',
+                'risk': 'rɪsk',
+                'current': 'ˈkʌrənt',
+                'fire': 'ˈfaɪə(r)',
+                'future': 'ˈfjuːtʃə(r)',
+                'wrong': 'rɒŋ',
+                'involve': 'ɪnˈvɒlv',
+                'defense': 'dɪˈfens',
+                'anyone': 'ˈeniwʌn',
+                'increase': 'ɪnˈkriːs/ˈɪnkriːs',
+                'security': 'sɪˈkjʊərəti',
+                'bank': 'bæŋk',
+                'myself': 'maɪˈself',
+                'certainly': 'ˈsɜːtnli',
+                'west': 'west',
+                'sport': 'spɔːt',
+                'board': 'bɔːd',
+                'seek': 'siːk',
+                'per': 'pə(r)',
+                'subject': 'ˈsʌbdʒɪkt/səbˈdʒekt',
+                'officer': 'ˈɒfɪsə(r)',
+                'private': 'ˈpraɪvət',
+                'rest': 'rest',
+                'behavior': 'bɪˈheɪvjə(r)',
+                'deal': 'diːl',
+                'performance': 'pəˈfɔːməns',
+                'fight': 'faɪt',
+                'throw': 'θrəʊ',
+                'top': 'tɒp',
+                'quickly': 'ˈkwɪkli',
+                'past': 'pɑːst',
+                'goal': 'ɡəʊl',
+                'bed': 'bed',
+                'order': 'ˈɔːdə(r)',
+                'author': 'ˈɔːθə(r)',
+                'fill': 'fɪl',
+                'represent': 'ˌreprɪˈzent',
+                'focus': 'ˈfəʊkəs',
+                'foreign': 'ˈfɒrən',
+                'drop': 'drɒp',
+                'blood': 'blʌd',
+                'upon': 'əˈpɒn',
+                'agency': 'ˈeɪdʒənsi',
+                'push': 'pʊʃ',
+                'nature': 'ˈneɪtʃə(r)',
+                'color': 'ˈkʌlə(r)',
+                'recently': 'ˈriːsntli',
+                'store': 'stɔː(r)',
+                'reduce': 'rɪˈdjuːs',
+                'sound': 'saʊnd',
+                'note': 'nəʊt',
+                'fine': 'faɪn',
+                'near': 'nɪə(r)',
+                'movement': 'ˈmuːvmənt',
+                'page': 'peɪdʒ',
+                'enter': 'ˈentə(r)',
+                'share': 'ʃeə(r)',
+                'poor': 'pɔː(r)',
+                'race': 'reɪs',
+                'concern': 'kənˈsɜːn',
+                'series': 'ˈsɪəriːz',
+                'significant': 'sɪɡˈnɪfɪkənt',
+                'similar': 'ˈsɪmɪlə(r)',
+                'hot': 'hɒt',
+                'language': 'ˈlæŋɡwɪdʒ',
+                'usually': 'ˈjuːʒuəli',
+                'response': 'rɪˈspɒns',
+                'dead': 'ded',
+                'rise': 'raɪz',
+                'animal': 'ˈænɪml',
+                'factor': 'ˈfæktə(r)',
+                'decade': 'ˈdekeɪd',
+                'article': 'ˈɑːtɪkl',
+                'shoot': 'ʃuːt',
+                'east': 'iːst',
+                'save': 'seɪv',
+                'seven': 'ˈsevn',
+                'artist': 'ˈɑːtɪst',
+                'scene': 'siːn',
+                'stock': 'stɒk',
+                'career': 'kəˈrɪə(r)',
+                'despite': 'dɪˈspaɪt',
+                'central': 'ˈsentrəl',
+                'eight': 'eɪt',
+                'thus': 'ðʌs',
+                'treatment': 'ˈtriːtmənt',
+                'beyond': 'bɪˈjɒnd',
+                'happy': 'ˈhæpi',
+                'exactly': 'ɪɡˈzæktli',
+                'protect': 'prəˈtekt',
+                'approach': 'əˈprəʊtʃ',
+                'lie': 'laɪ',
+                'size': 'saɪz',
+                'dog': 'dɒɡ',
+                'fund': 'fʌnd',
+                'serious': 'ˈsɪəriəs',
+                'occur': 'əˈkɜː(r)',
+                'media': 'ˈmiːdiə',
+                'ready': 'ˈredi',
+                'sign': 'saɪn',
+                'thought': 'θɔːt',
+                'list': 'lɪst',
+                'individual': 'ˌɪndɪˈvɪdʒuəl',
+                'analysis': 'əˈnæləsɪs',
+                'exist': 'ɪɡˈzɪst',
+                'according': 'əˈkɔːdɪŋ',
+                'loss': 'lɒs',
+                'act': 'ækt',
+                'clearly': 'ˈklɪəli',
+                'participate': 'pɑːˈtɪsɪpeɪt',
+                'basic': 'ˈbeɪsɪk',
+                'pressure': 'ˈpreʃə(r)',
+                'join': 'dʒɔɪn',
+                'discover': 'dɪˈskʌvə(r)',
+                'vote': 'vəʊt',
+                'amount': 'əˈmaʊnt',
+                'today': 'təˈdeɪ',
+                'relationship': 'rɪˈleɪʃnʃɪp',
+                'version': 'ˈvɜːʃn',
+                'message': 'ˈmesɪdʒ',
+                'guess': 'ɡes',
+                'key': 'kiː',
+                'anyway': 'ˈeniweɪ',
+                'visit': 'ˈvɪzɪt',
+                'affect': 'əˈfekt',
+                'please': 'pliːz',
+                'inside': 'ˌɪnˈsaɪd/ˈɪnsaɪd',
+                'advance': 'ədˈvɑːns',
+                'standard': 'ˈstændəd',
+                'firm': 'fɜːm',
+                'indicate': 'ˈɪndɪkeɪt',
+                'recognize': 'ˈrekəɡnaɪz',
+                'box': 'bɒks',
+                'gift': 'ɡɪft',
+                'station': 'ˈsteɪʃn',
+                'responsible': 'rɪˈspɒnsəbl',
+                'check': 'tʃek',
+                'adult': 'ˈædʌlt',
+                'possibility': 'ˌpɒsəˈbɪləti',
+                'training': 'ˈtreɪnɪŋ',
+                'travel': 'ˈtrævl',
+                'item': 'ˈaɪtəm',
+                'detail': 'ˈdiːteɪl',
+                'citizen': 'ˈsɪtɪzn',
+                'living': 'ˈlɪvɪŋ',
+                'positive': 'ˈpɒzətɪv',
+                'success': 'səkˈses',
+                'meeting': 'ˈmiːtɪŋ',
+                'deep': 'diːp',
+                'network': 'ˈnetwɜːk',
+                'absence': 'ˈæbsəns',
+                'cell': 'sel',
+                'interview': 'ˈɪntəvjuː',
+                'shop': 'ʃɒp',
+                'critical': 'ˈkrɪtɪkl',
+                'edge': 'edʒ',
+                'insurance': 'ɪnˈʃʊərəns',
+                'session': 'ˈseʃn',
+                'weather': 'ˈweðə(r)',
+                'element': 'ˈelɪmənt',
+                'finish': 'ˈfɪnɪʃ',
+                'peak': 'piːk',
+                'district': 'ˈdɪstrɪkt',
+                'contain': 'kənˈteɪn',
+                'compare': 'kəmˈpeə(r)',
+                'declare': 'dɪˈkleə(r)',
+                'circumstance': 'ˈsɜːkəmstəns',
+                'reflect': 'rɪˈflekt',
+                'advantage': 'ədˈvɑːntɪdʒ',
+                'beautiful': 'ˈbjuːtɪfl',
+                'shoulder': 'ˈʃəʊldə(r)',
+                'extent': 'ɪkˈstent',
+                'treat': 'triːt',
+                'tend': 'tend',
+                'popular': 'ˈpɒpjələ(r)',
+                'specific': 'spəˈsɪfɪk',
+                'forward': 'ˈfɔːwəd',
+                'charge': 'tʃɑːdʒ',
+                'trial': 'ˈtraɪəl',
+                'manage': 'ˈmænɪdʒ',
+                'daily': 'ˈdeɪli',
+                'guest': 'ɡest',
+                'sensitive': 'ˈsensətɪv',
+                'estimate': 'ˈestɪmeɪt/ˈestɪmət',
+                'previous': 'ˈpriːviəs',
+                'institution': 'ˌɪnstɪˈtjuːʃn',
+                'reveal': 'rɪˈviːl',
+                'attend': 'əˈtend',
+                'annual': 'ˈænjuəl',
+                'afternoon': 'ˌɑːftəˈnuːn',
+                'painting': 'ˈpeɪntɪŋ',
+                'direct': 'dəˈrekt/daɪˈrekt/ˈdaɪrekt',
+                'immediately': 'ɪˈmiːdiətli',
+                'attempt': 'əˈtempt',
+                'assessment': 'əˈsesmənt',
+                'wide': 'waɪd',
+                'chief': 'tʃiːf',
+                'demand': 'dɪˈmɑːnd',
+                'surface': 'ˈsɜːfɪs',
+                'variety': 'vəˈraɪəti',
+                'feature': 'ˈfiːtʃə(r)',
+                'personnel': 'ˌpɜːsəˈnel',
+                'cat': 'kæt',
+                'package': 'ˈpækɪdʒ',
+                'difficulty': 'ˈdɪfɪkəlti',
+                'date': 'deɪt',
+                'regional': 'ˈriːdʒənl',
+                'distribution': 'ˌdɪstrɪˈbjuːʃn',
+                'primary': 'ˈpraɪməri',
+                'intend': 'ɪnˈtend',
+                'origin': 'ˈɒrɪdʒɪn',
+                'investigation': 'ɪnˌvestɪˈɡeɪʃn',
+                'measure': 'ˈmeʒə(r)',
+                'double': 'ˈdʌbl',
+                'command': 'kəˈmɑːnd',
+                'income': 'ˈɪnkʌm',
+                'profit': 'ˈprɒfɪt',
+                'purchase': 'ˈpɜːtʃəs',
+                'acid': 'ˈæsɪd',
+                'appeal': 'əˈpiːl',
+                'sugar': 'ˈʃʊɡə(r)',
+                'contrast': 'ˈkɒntrɑːst/kənˈtrɑːst',
+                'capacity': 'kəˈpæsəti',
+                'peace': 'piːs',
+                'injury': 'ˈɪndʒəri',
+                'review': 'rɪˈvjuː',
+                'minority': 'maɪˈnɒrəti',
+                'tall': 'tɔːl',
+                'facility': 'fəˈsɪləti',
+                'expert': 'ˈekspɜːt',
+                'spring': 'sprɪŋ',
+                'ring': 'rɪŋ',
+                'branch': 'brɑːntʃ',
+                'combination': 'ˌkɒmbɪˈneɪʃn',
+                'youth': 'juːθ',
+                'index': 'ˈɪndeks',
+                'host': 'həʊst',
+                'conversation': 'ˌkɒnvəˈseɪʃn',
+                'pupil': 'ˈpjuːpl',
+                'attitude': 'ˈætɪtjuːd',
+                'reform': 'rɪˈfɔːm',
+                'exercise': 'ˈeksəsaɪz',
+                'straight': 'streɪt',
+                'honor': 'ˈɒnə(r)',
+                'engine': 'ˈendʒɪn',
+                'display': 'dɪˈspleɪ',
+                'application': 'ˌæplɪˈkeɪʃn',
+                'feeling': 'ˈfiːlɪŋ',
+                'estate': 'ɪˈsteɪt',
+                'initial': 'ɪˈnɪʃl',
+                'solution': 'səˈluːʃn',
+                'increasingly': 'ɪnˈkriːsɪŋli',
+                'release': 'rɪˈliːs',
+                'village': 'ˈvɪlɪdʒ',
+                'explanation': 'ˌekspləˈneɪʃn',
+                'observe': 'əbˈzɜːv',
+                'tradition': 'trəˈdɪʃn',
+                'reference': 'ˈrefrəns',
+                'aim': 'eɪm',
+                'fast': 'fɑːst',
+                'concept': 'ˈkɒnsept',
+                'victim': 'ˈvɪktɪm',
+                'reality': 'riˈæləti',
+                'tool': 'tuːl',
+                'slowly': 'ˈsləʊli',
+                'audience': 'ˈɔːdiəns',
+                'traffic': 'ˈtræfɪk',
+                'conclude': 'kənˈkluːd',
+                'judge': 'dʒʌdʒ',
+                'regular': 'ˈreɡjələ(r)',
+                'reaction': 'riˈækʃn',
+                'empty': 'ˈempti',
+                'gather': 'ˈɡæðə(r)',
+                'domestic': 'dəˈmestɪk',
+                'adopt': 'əˈdɒpt',
+                'usual': 'ˈjuːʒuəl',
+                'dangerous': 'ˈdeɪndʒərəs',
+                'achieve': 'əˈtʃiːv',
+                'damage': 'ˈdæmɪdʒ',
+                'strategy': 'ˈstrætədʒi',
+                'promote': 'prəˈməʊt',
+                'incident': 'ˈɪnsɪdənt',
+                'actual': 'ˈæktʃuəl',
+                'suppose': 'səˈpəʊz',
+                'commit': 'kəˈmɪt',
+                'decision': 'dɪˈsɪʒn',
+                'determine': 'dɪˈtɜːmɪn',
+                'entirely': 'ɪnˈtaɪəli',
+                'examine': 'ɪɡˈzæmɪn',
+                'credit': 'ˈkredɪt',
+                'middle': 'ˈmɪdl',
+                'desire': 'dɪˈzaɪə(r)',
+                'necessarily': 'ˈnesəsərəli',
+                'considerable': 'kənˈsɪdərəbl',
+                'interpretation': 'ɪnˌtɜːprɪˈteɪʃn',
+                'section': 'ˈsekʃn',
+                'additional': 'əˈdɪʃənl',
+                'complex': 'ˈkɒmpleks',
+                'supply': 'səˈplaɪ',
+                'enterprise': 'ˈentəpraɪz',
+                'pension': 'ˈpenʃn',
+                'contribution': 'ˌkɒntrɪˈbjuːʃn',
+                'code': 'kəʊd',
+                'replace': 'rɪˈpleɪs',
+                'relevant': 'ˈreləvənt',
+                'maintain': 'meɪnˈteɪn',
+                'procedure': 'prəˈsiːdʒə(r)',
+                'conflict': 'ˈkɒnflɪct/kənˈflɪkt',
+                'resolution': 'ˌrezəˈluːʃn',
+                'contact': 'ˈkɒntækt/kənˈtækt',
+                'emerge': 'ɪˈmɜːdʒ',
+                'recommend': 'ˌrekəˈmend',
+                'proportion': 'prəˈpɔːʃn',
+                'unite': 'juˈnaɪt',
+                'internal': 'ɪnˈtɜːnl',
+                'extra': 'ˈekstrə',
+                'academic': 'ˌækəˈdemɪk',
+                'output': 'ˈaʊtpʊt',
+                'ultimately': 'ˈʌltɪmətli',
+                'regulation': 'ˌreɡjuˈleɪʃn',
+                'corporate': 'ˈkɔːpərət',
+                'appropriate': 'əˈprəʊpriət',
+                'involvement': 'ɪnˈvɒlvmənt',
+                'liberal': 'ˈlɪbrəl',
+                'understanding': 'ˌʌndəˈstændɪŋ',
+                'laboratory': 'ləˈbɒrətri',
+                'category': 'ˈkætəɡəri',
+                'constitute': 'ˈkɒnstɪtjuːt',
+                'spending': 'ˈspendɪŋ',
+                'notion': 'ˈnəʊʃn',
+                'apart': 'əˈpɑːt',
+                'match': 'mætʃ',
+                'resistance': 'rɪˈzɪstəns',
+                'substance': 'ˈsʌbstəns',
+                'arise': 'əˈraɪz',
+                'address': 'əˈdres/ˈædres',
+                'intention': 'ɪnˈtenʃn',
+                'channel': 'ˈtʃænl',
+                'concentrate': 'ˈkɒnsntreɪt',
+                'effectively': 'ɪˈfektɪvli',
+                'consequence': 'ˈkɒnsɪkwəns',
+                'provision': 'prəˈvɪʒn',
+                'convention': 'kənˈvenʃn',
+                'component': 'kəmˈpəʊnənt',
+                'imply': 'ɪmˈplaɪ',
+                'competition': 'ˌkɒmpəˈtɪʃn',
+                'emphasis': 'ˈemfəsɪs',
+                'consideration': 'kənˌsɪdəˈreɪʃn',
+                'definition': 'ˌdefɪˈnɪʃn',
+                'accommodation': 'əˌkɒməˈdeɪʃn',
+                'brief': 'briːf',
+                'instance': 'ˈɪnstəns',
+                'error': 'ˈerə(r)',
+                'demonstrate': 'ˈdemənstreɪt',
+                'aid': 'eɪd',
+                'substantial': 'səbˈstænʃl',
+                'importance': 'ɪmˈpɔːtns',
+                'principle': 'ˈprɪnsəpl',
+                'survey': 'ˈsɜːveɪ/səˈveɪ',
+                'threat': 'θret',
+                'initiative': 'ɪˈnɪʃətɪv',
+                'conclusion': 'kənˈkluːʒn',
+                'occasion': 'əˈkeɪʒn',
+                'illustrate': 'ˈɪləstreɪt',
+                'generate': 'ˈdʒenəreɪt',
+                'generation': 'ˌdʒenəˈreɪʃn',
+                'external': 'ɪkˈstɜːnl',
+                'vast': 'vɑːst',
+                'survive': 'səˈvaɪv',
+                'struggle': 'ˈstrʌɡl',
+                'target': 'ˈtɑːɡɪt',
+                'transfer': 'ˈtrænsfɜː(r)/trænsˈfɜː(r)',
+                'rely': 'rɪˈlaɪ',
+                'minor': 'ˈmaɪnə(r)',
+                'expense': 'ɪkˈspens',
+                'massive': 'ˈmæsɪv',
+                'unique': 'juˈniːk',
+                'regime': 'reɪˈʒiːm',
+                'reinforce': 'ˌriːɪnˈfɔːs',
+                'equally': 'ˈiːkwəli',
+                'urban': 'ˈɜːbən',
+                'panel': 'ˈpænl',
+                'distinction': 'dɪˈstɪŋkʃn',
+                'familiar': 'fəˈmɪliə(r)',
+                'capable': 'ˈkeɪpəbl',
+                'characteristic': 'ˌkærəktəˈrɪstɪk',
+                'prison': 'ˈprɪzn',
+                'doubt': 'daʊt',
+                'conservative': 'kənˈsɜːvətɪv',
+                'incorporate': 'ɪnˈkɔːpəreɪt',
+                'priority': 'praɪˈɒrəti',
+                'comprehensive': 'ˌkɒmprɪˈhensɪv',
+                'expand': 'ɪkˈspænd',
+                'front': 'frʌnt',
+                'acquire': 'əˈkwaɪə(r)',
+                'background': 'ˈbækɡraʊnd',
+                'welfare': 'ˈwelfeə(r)',
+                'regard': 'rɪˈɡɑːd',
+                'negotiation': 'nɪˌɡəʊʃiˈeɪʃn',
+                'deny': 'dɪˈnaɪ',
+                'diversity': 'daɪˈvɜːsəti',
+                'assume': 'əˈsjuːm',
+                'recovery': 'rɪˈkʌvəri',
+                'remaining': 'rɪˈmeɪnɪŋ',
+                'impose': 'ɪmˈpəʊz',
+                'permanent': 'ˈpɜːmənənt',
+                'implication': 'ˌɪmplɪˈkeɪʃn',
+                'balance': 'ˈbæləns',
+                'relatively': 'ˈrelətɪvli',
+                'sufficient': 'səˈfɪʃnt',
+                'shift': 'ʃɪft',
+                'crucial': 'ˈkruːʃl',
+                'federal': 'ˈfedərəl',
+                'representation': 'ˌreprɪzenˈteɪʃn',
+                'leaf': 'liːf',
+                'congressional': 'kənˈɡreʃənl',
+                'assess': 'əˈses',
+                'favor': 'ˈfeɪvə(r)',
+                'fashion': 'ˈfæʃn',
+                'primarily': 'praɪˈmerəli',
+                'institutional': 'ˌɪnstɪˈtjuːʃənl',
+                'mixed': 'mɪkst',
+                'slow': 'sləʊ',
+                'rural': 'ˈrʊərəl',
+                'county': 'ˈkaʊnti',
+                'labour': 'ˈleɪbə(r)',
+                'coast': 'kəʊst',
+                'measurement': 'ˈmeʒəmənt',
+                'medium': 'ˈmiːdiəm',
+                'everyday': 'ˈevrideɪ',
+                'challenge': 'ˈtʃælɪndʒ',
+                'detailed': 'ˈdiːteɪld',
+                'judgment': 'ˈdʒʌdʒmənt',
+                'premise': 'ˈpremɪs',
+                'possess': 'pəˈzes',
+                'evolve': 'ɪˈvɒlv',
+                'collective': 'kəˈlektɪv',
+                'dramatic': 'drəˈmætɪk',
+                'scientific': 'ˌsaɪənˈtɪfɪk',
+                'disappear': 'ˌdɪsəˈpɪə(r)',
+                'succeed': 'səkˈsiːd',
+                'largely': 'ˈlɑːdʒli',
+                'locate': 'ləʊˈkeɪt',
+                'manner': 'ˈmænə(r)',
+                'fundamental': 'ˌfʌndəˈmentl',
+                'pool': 'puːl',
+                'teaching': 'ˈtiːtʃɪŋ',
+                'widespread': 'ˈwaɪdspred',
+                'advise': 'ədˈvaɪz',
+                'solid': 'ˈsɒlɪd',
+                'establishment': 'ɪˈstæblɪʃmənt',
+                'respond': 'rɪˈspɒnd',
+                'distribute': 'dɪˈstrɪbjuːt',
+                'differ': 'ˈdɪfə(r)',
+                'interpret': 'ɪnˈtɜːprɪt',
+                'exposure': 'ɪkˈspəʊʒə(r)',
+                'framework': 'ˈfreɪmwɜːk',
+                'finance': 'ˈfaɪnæns/faɪˈnæns',
+                'plus': 'plʌs',
+                'relief': 'rɪˈliːf',
+                'relate': 'rɪˈleɪt',
+                'limited': 'ˈlɪmɪtɪd',
+                'afraid': 'əˈfreɪd',
+                'transition': 'trænˈzɪʃn',
+                'mechanism': 'ˈmekənɪzəm',
+                'initiate': 'ɪˈnɪʃieɪt',
+                'alternative': 'ɔːlˈtɜːnətɪv',
+                'competitive': 'kəmˈpetətɪv',
+                'absolute': 'ˈæbsəluːt',
+                'classic': 'ˈklæsɪk',
+                'frequency': 'ˈfriːkwənsi',
+                'intense': 'ɪnˈtens',
+                'voluntary': 'ˈvɒləntri',
+                'visible': 'ˈvɪzəbl',
+                'participation': 'pɑːˌtɪsɪˈpeɪʃn',
+                'long-term': 'ˌlɒŋ ˈtɜːm',
+                'principal': 'ˈprɪnsəpl',
+                'perception': 'pəˈsepʃn',
+                'rapid': 'ˈræpɪd',
+                'subsequent': 'ˈsʌbsɪkwənt',
+                'intelligence': 'ɪnˈtelɪdʒəns',
+                'select': 'sɪˈlekt',
+                'reputation': 'ˌrepjuˈteɪʃn',
+                'accomplish': 'əˈkʌmplɪʃ',
+                'overcome': 'ˌəʊvəˈkʌm',
+                'justify': 'ˈdʒʌstɪfaɪ',
+                'illustration': 'ˌɪləˈstreɪʃn',
+                'transform': 'trænsˈfɔːm',
+                'concerning': 'kənˈsɜːnɪŋ',
+                'eliminate': 'ɪˈlɪmɪneɪt',
+                'profile': 'ˈprəʊfaɪl',
+                'specialist': 'ˈspeʃəlɪst',
+                'originally': 'əˈrɪdʒənəli',
+                'vary': 'ˈveəri',
+                'accurate': 'ˈækjərət',
+                'decrease': 'dɪˈkriːs/ˈdiːkriːs',
+                'temporary': 'ˈtemprəri',
+                'assistance': 'əˈsɪstəns',
+                'modest': 'ˈmɒdɪst',
+                'revolution': 'ˌrevəˈluːʃn',
+                'desirable': 'dɪˈzaɪərəbl',
+                'exceed': 'ɪkˈsiːd',
+                'impressive': 'ɪmˈpresɪv',
+                'intensity': 'ɪnˈtensəti',
+                'recession': 'rɪˈseʃn',
+                'register': 'ˈredʒɪstə(r)',
+                'apparent': 'əˈpærənt',
+                'encounter': 'ɪnˈkaʊntə(r)',
+                'convinced': 'kənˈvɪnst',
+                'democratic': 'ˌdeməˈkrætɪk',
+                'sustain': 'səˈsteɪn',
+                'enhance': 'ɪnˈhɑːns',
+                'flexible': 'ˈfleksəbl',
+                'incentive': 'ɪnˈsentɪv',
+                'precise': 'prɪˈsaɪs',
+                'distant': 'ˈdɪstənt',
+                'concrete': 'ˈkɒŋkriːt',
+                'intelligent': 'ɪnˈtelɪdʒənt',
+                'curriculum': 'kəˈrɪkjələm',
+                'remarkable': 'rɪˈmɑːkəbl',
+                'sophisticated': 'səˈfɪstɪkeɪtɪd'
             };
-            return phoneticMap[word.toLowerCase()] || `/${word}/`;
+            
+            return phoneticMap[word.toLowerCase()] || word;
         }
 
         // 生成例句
@@ -544,8 +1734,8 @@
             const html = `
                 <div class="word-title">${word.word}</div>
                 <div class="phonetic-container">
-                    <div class="phonetic">/${phonetic}/</div>
-                    <button class="speaker-btn" onclick="speakWord('${word.word}', '${phonetic}')">
+                    <div class="phonetic">[${phonetic}]</div>
+                    <button class="speaker-btn" onclick="speakWord('${word.word}')">
                         <svg viewBox="0 0 24 24">
                             <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
                         </svg>
@@ -573,13 +1763,12 @@
         }
 
         // 朗读单词
-        function speakWord(word, phonetic) {
-            // 使用浏览器的语音合成API
+        function speakWord(word) {
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(word);
                 utterance.lang = 'en-US';
                 utterance.rate = 0.8;
-                window.speechSynthesis.cancel(); // 取消之前的朗读
+                window.speechSynthesis.cancel();
                 window.speechSynthesis.speak(utterance);
             } else {
                 alert('您的浏览器不支持语音功能');
@@ -597,13 +1786,11 @@
             updateStats();
 
             if (remainingWords.length > 0) {
-                // 显示下一个单词
                 if (currentWordIndex >= remainingWords.length) {
                     currentWordIndex = 0;
                 }
                 displayWord(remainingWords[currentWordIndex]);
             } else {
-                // 所有单词都已掌握
                 showAllMastered();
             }
         }
@@ -623,7 +1810,7 @@
         function showAllMastered() {
             document.getElementById('wordDisplay').innerHTML = `
                 <div class="empty-state">
-                    <p style="font-size: 1.5em; color: #667eea;">🎉 恭喜！</p>
+                    <p style="font-size: 1.5em; color: #4a90e2;">🎉 恭喜！</p>
                     <p style="margin-top: 15px; font-size: 1.1em;">你已经掌握了所有单词！</p>
                     <p style="margin-top: 10px;">可以在"已掌握单词"中复习</p>
                 </div>
@@ -634,6 +1821,8 @@
         function showLearning() {
             document.getElementById('learningCard').classList.remove('hidden');
             document.getElementById('masteredCard').classList.remove('active');
+            selectedWordIds.clear();
+            updateSelectionInfo();
 
             if (remainingWords.length > 0) {
                 displayWord(remainingWords[currentWordIndex]);
@@ -648,6 +1837,7 @@
             document.getElementById('masteredCard').classList.add('active');
 
             const masteredList = document.getElementById('masteredList');
+            const batchActions = document.getElementById('batchActions');
             
             if (masteredWordIds.size === 0) {
                 masteredList.innerHTML = `
@@ -659,6 +1849,7 @@
                         <p style="margin-top: 10px;">开始学习并标记已掌握的单词吧！</p>
                     </div>
                 `;
+                batchActions.classList.remove('active');
                 return;
             }
 
@@ -666,22 +1857,72 @@
             
             let html = '<div class="word-grid">';
             masteredWordsArray.forEach(word => {
+                const isSelected = selectedWordIds.has(word.id);
                 html += `
-                    <div class="word-card" onclick="reviewWord(${word.id})">
-                        <div class="word-card-title">${word.word}</div>
-                        <div class="word-card-trans">${word.pos} · ${word.translation}</div>
+                    <div class="word-card ${isSelected ? 'selected' : ''}" onclick="toggleWordSelection(${word.id})" data-word-id="${word.id}">
+                        <input type="checkbox" class="word-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleWordSelection(${word.id})">
+                        <div class="word-card-content">
+                            <div class="word-card-title">${word.word}</div>
+                            <div class="word-card-trans">${word.pos} · ${word.translation}</div>
+                        </div>
                     </div>
                 `;
             });
             html += '</div>';
 
             masteredList.innerHTML = html;
+            batchActions.classList.add('active');
+            updateSelectionInfo();
         }
 
-        // 复习单词（从已掌握列表中移除）
-        function reviewWord(wordId) {
-            if (confirm('是否要将此单词标记为"未掌握"并重新学习？')) {
-                masteredWordIds.delete(wordId);
+        // 切换单词选择状态
+        function toggleWordSelection(wordId) {
+            if (selectedWordIds.has(wordId)) {
+                selectedWordIds.delete(wordId);
+            } else {
+                selectedWordIds.add(wordId);
+            }
+            showMastered(); // 重新渲染以更新选中状态
+        }
+
+        // 全选
+        function selectAllMastered() {
+            const masteredWordsArray = wordsDatabase.filter(word => masteredWordIds.has(word.id));
+            masteredWordsArray.forEach(word => {
+                selectedWordIds.add(word.id);
+            });
+            showMastered();
+        }
+
+        // 取消选择
+        function clearSelection() {
+            selectedWordIds.clear();
+            showMastered();
+        }
+
+        // 更新选择信息
+        function updateSelectionInfo() {
+            const info = document.getElementById('selectionInfo');
+            if (selectedWordIds.size > 0) {
+                info.style.display = 'block';
+                info.textContent = `已选择 ${selectedWordIds.size} 个单词`;
+            } else {
+                info.style.display = 'none';
+            }
+        }
+
+        // 批量标记为未掌握
+        function batchUnlearn() {
+            if (selectedWordIds.size === 0) {
+                alert('请先选择要重新学习的单词');
+                return;
+            }
+
+            if (confirm(`确定要将选中的 ${selectedWordIds.size} 个单词标记为"未掌握"并重新学习吗？`)) {
+                selectedWordIds.forEach(wordId => {
+                    masteredWordIds.delete(wordId);
+                });
+                selectedWordIds.clear();
                 saveMasteredWords();
                 updateRemainingWords();
                 updateStats();
