@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英语高频词学习系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .nav-btn.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-btn.primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn.secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .nav-btn.secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            min-height: 400px;
+        }
+
+        .word-display {
+            text-align: center;
+        }
+
+        .word-title {
+            font-size: 3.5em;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .phonetic-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .phonetic {
+            font-size: 1.5em;
+            color: #667eea;
+            font-family: 'Courier New', monospace;
+        }
+
+        .speaker-btn {
+            background: #667eea;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .speaker-btn:hover {
+            background: #5568d3;
+            transform: scale(1.1);
+        }
+
+        .speaker-btn svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .word-info {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .pos {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .translation {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .example {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+            margin-top: 15px;
+        }
+
+        .example-label {
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+
+        .example-text {
+            color: #555;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        .master-btn {
+            background: #48bb78;
+            color: white;
+        }
+
+        .master-btn:hover {
+            background: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(72, 187, 120, 0.4);
+        }
+
+        .next-btn {
+            background: #667eea;
+            color: white;
+        }
+
+        .next-btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .mastered-list {
+            display: none;
+        }
+
+        .mastered-list.active {
+            display: block;
+        }
+
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .word-card {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 12px;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .word-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+        }
+
+        .word-card-title {
+            font-size: 1.5em;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .word-card-trans {
+            color: #666;
+            font-size: 0.95em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s;
+            border-radius: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .word-title {
+                font-size: 2.5em;
+            }
+
+            .card {
+                padding: 25px;
+            }
+
+            .stats {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 头部 -->
+        <div class="header">
+            <h1>📚 英语高频词学习系统</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalWords">0</div>
+                    <div class="stat-label">总词汇</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="masteredWords">0</div>
+                    <div class="stat-label">已掌握</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="remainingWords">0</div>
+                    <div class="stat-label">待学习</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn primary" onclick="showLearning()">开始学习</button>
+                <button class="nav-btn secondary" onclick="showMastered()">已掌握单词</button>
+            </div>
+        </div>
+
+        <!-- 学习界面 -->
+        <div class="card" id="learningCard">
+            <div class="word-display" id="wordDisplay">
+                <div class="empty-state">
+                    <p style="font-size: 1.5em; color: #667eea;">🎉 恭喜！</p>
+                    <p style="margin-top: 15px; font-size: 1.1em;">你已经掌握了所有单词！</p>
+                    <p style="margin-top: 10px;">可以在"已掌握单词"中复习</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 已掌握单词列表 -->
+        <div class="card mastered-list" id="masteredCard">
+            <h2 style="color: #667eea; margin-bottom: 20px; text-align: center;">✅ 已掌握的单词</h2>
+            <div id="masteredList">
+                <div class="empty-state">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <p style="font-size: 1.2em;">还没有掌握任何单词</p>
+                    <p style="margin-top: 10px;">开始学习并标记已掌握的单词吧！</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 单词数据库
+        const wordsDatabase = [{"id": 1, "word": "the", "pos": "定冠词", "translation": "这，那"}, {"id": 2, "word": "be", "pos": "动词", "translation": "是，存在"}, {"id": 3, "word": "and", "pos": "连词", "translation": "和"}, {"id": 4, "word": "of", "pos": "介词", "translation": "的"}, {"id": 5, "word": "a", "pos": "冠词", "translation": "一"}, {"id": 6, "word": "in", "pos": "介词", "translation": "在...里"}, {"id": 7, "word": "to", "pos": "介词/不定式", "translation": "到，向"}, {"id": 8, "word": "have", "pos": "动词", "translation": "有"}, {"id": 9, "word": "it", "pos": "代词", "translation": "它"}, {"id": 10, "word": "I", "pos": "代词", "translation": "我"}, {"id": 11, "word": "that", "pos": "连词/代词", "translation": "那个，那"}, {"id": 12, "word": "for", "pos": "介词", "translation": "为了"}, {"id": 13, "word": "you", "pos": "代词", "translation": "你，你们"}, {"id": 14, "word": "he", "pos": "代词", "translation": "他"}, {"id": 15, "word": "with", "pos": "介词", "translation": "和...一起"}, {"id": 16, "word": "on", "pos": "介词", "translation": "在...上"}, {"id": 17, "word": "do", "pos": "动词", "translation": "做"}, {"id": 18, "word": "say", "pos": "动词", "translation": "说"}, {"id": 19, "word": "this", "pos": "代词", "translation": "这个"}, {"id": 20, "word": "they", "pos": "代词", "translation": "他们"}, {"id": 21, "word": "at", "pos": "介词", "translation": "在"}, {"id": 22, "word": "but", "pos": "连词", "translation": "但是"}, {"id": 23, "word": "we", "pos": "代词", "translation": "我们"}, {"id": 24, "word": "his", "pos": "代词", "translation": "他的"}, {"id": 25, "word": "from", "pos": "介词", "translation": "从"}, {"id": 26, "word": "that", "pos": "连词", "translation": "那"}, {"id": 27, "word": "not", "pos": "副词", "translation": "不"}, {"id": 28, "word": "n't", "pos": "副词", "translation": "不"}, {"id": 29, "word": "by", "pos": "介词", "translation": "通过"}, {"id": 30, "word": "she", "pos": "代词", "translation": "她"}, {"id": 31, "word": "or", "pos": "连词", "translation": "或者"}, {"id": 32, "word": "as", "pos": "介词/连词", "translation": "作为，当"}, {"id": 33, "word": "what", "pos": "代词", "translation": "什么"}, {"id": 34, "word": "go", "pos": "动词", "translation": "去"}, {"id": 35, "word": "their", "pos": "代词", "translation": "他们的"}, {"id": 36, "word": "can", "pos": "情态动词", "translation": "能"}, {"id": 37, "word": "who", "pos": "代词", "translation": "谁"}, {"id": 38, "word": "get", "pos": "动词", "translation": "得到"}, {"id": 39, "word": "if", "pos": "连词", "translation": "如果"}, {"id": 40, "word": "would", "pos": "情态动词", "translation": "将，愿意"}, {"id": 41, "word": "her", "pos": "代词", "translation": "她的"}, {"id": 42, "word": "all", "pos": "形容词", "translation": "所有"}, {"id": 43, "word": "my", "pos": "代词", "translation": "我的"}, {"id": 44, "word": "make", "pos": "动词", "translation": "制作"}, {"id": 45, "word": "about", "pos": "介词", "translation": "关于"}, {"id": 46, "word": "know", "pos": "动词", "translation": "知道"}, {"id": 47, "word": "will", "pos": "情态动词", "translation": "将"}, {"id": 48, "word": "as", "pos": "连词", "translation": "如同"}, {"id": 49, "word": "up", "pos": "副词", "translation": "向上"}, {"id": 50, "word": "one", "pos": "数词", "translation": "一"}, {"id": 51, "word": "time", "pos": "名词", "translation": "时间"}, {"id": 52, "word": "there", "pos": "副词", "translation": "那里"}, {"id": 53, "word": "year", "pos": "名词", "translation": "年"}, {"id": 54, "word": "so", "pos": "连词", "translation": "所以"}, {"id": 55, "word": "think", "pos": "动词", "translation": "想，认为"}, {"id": 56, "word": "when", "pos": "连词", "translation": "当...时"}, {"id": 57, "word": "which", "pos": "代词", "translation": "哪个"}, {"id": 58, "word": "them", "pos": "代词", "translation": "他们"}, {"id": 59, "word": "some", "pos": "代词", "translation": "一些"}, {"id": 60, "word": "me", "pos": "代词", "translation": "我"}, {"id": 61, "word": "people", "pos": "名词", "translation": "人们"}, {"id": 62, "word": "take", "pos": "动词", "translation": "拿"}, {"id": 63, "word": "out", "pos": "副词", "translation": "出去"}, {"id": 64, "word": "into", "pos": "介词", "translation": "进入"}, {"id": 65, "word": "just", "pos": "副词", "translation": "刚刚，只是"}, {"id": 66, "word": "see", "pos": "动词", "translation": "看见"}, {"id": 67, "word": "him", "pos": "代词", "translation": "他"}, {"id": 68, "word": "your", "pos": "代词", "translation": "你的"}, {"id": 69, "word": "come", "pos": "动词", "translation": "来"}, {"id": 70, "word": "could", "pos": "情态动词", "translation": "能"}, {"id": 71, "word": "now", "pos": "副词", "translation": "现在"}, {"id": 72, "word": "than", "pos": "连词", "translation": "比"}, {"id": 73, "word": "like", "pos": "介词", "translation": "像"}, {"id": 74, "word": "other", "pos": "形容词", "translation": "其他"}, {"id": 75, "word": "how", "pos": "副词", "translation": "如何"}, {"id": 76, "word": "then", "pos": "副词", "translation": "然后"}, {"id": 77, "word": "its", "pos": "代词", "translation": "它的"}, {"id": 78, "word": "our", "pos": "代词", "translation": "我们的"}, {"id": 79, "word": "two", "pos": "数词", "translation": "二"}, {"id": 80, "word": "more", "pos": "形容词", "translation": "更多"}, {"id": 81, "word": "these", "pos": "代词", "translation": "这些"}, {"id": 82, "word": "want", "pos": "动词", "translation": "想要"}, {"id": 83, "word": "way", "pos": "名词", "translation": "方法，路"}, {"id": 84, "word": "look", "pos": "动词", "translation": "看"}, {"id": 85, "word": "first", "pos": "序数词", "translation": "第一"}, {"id": 86, "word": "also", "pos": "副词", "translation": "也"}, {"id": 87, "word": "new", "pos": "形容词", "translation": "新的"}, {"id": 88, "word": "because", "pos": "连词", "translation": "因为"}, {"id": 89, "word": "day", "pos": "名词", "translation": "天"}, {"id": 90, "word": "more", "pos": "副词", "translation": "更"}, {"id": 91, "word": "use", "pos": "动词", "translation": "使用"}, {"id": 92, "word": "no", "pos": "副词", "translation": "不"}, {"id": 93, "word": "man", "pos": "名词", "translation": "男人"}, {"id": 94, "word": "find", "pos": "动词", "translation": "找到"}, {"id": 95, "word": "here", "pos": "副词", "translation": "这里"}, {"id": 96, "word": "thing", "pos": "名词", "translation": "事情"}, {"id": 97, "word": "give", "pos": "动词", "translation": "给"}, {"id": 98, "word": "many", "pos": "形容词", "translation": "许多"}, {"id": 99, "word": "well", "pos": "副词", "translation": "好"}, {"id": 100, "word": "only", "pos": "副词", "translation": "只有"}, {"id": 101, "word": "those", "pos": "代词", "translation": "那些"}, {"id": 102, "word": "tell", "pos": "动词", "translation": "告诉"}, {"id": 103, "word": "one", "pos": "代词", "translation": "一个"}, {"id": 104, "word": "very", "pos": "副词", "translation": "非常"}, {"id": 105, "word": "her", "pos": "代词", "translation": "她"}, {"id": 106, "word": "even", "pos": "副词", "translation": "甚至"}, {"id": 107, "word": "back", "pos": "副词", "translation": "回"}, {"id": 108, "word": "any", "pos": "形容词", "translation": "任何"}, {"id": 109, "word": "good", "pos": "形容词", "translation": "好的"}, {"id": 110, "word": "woman", "pos": "名词", "translation": "女人"}, {"id": 111, "word": "through", "pos": "介词", "translation": "通过"}, {"id": 112, "word": "us", "pos": "代词", "translation": "我们"}, {"id": 113, "word": "life", "pos": "名词", "translation": "生活"}, {"id": 114, "word": "child", "pos": "名词", "translation": "孩子"}, {"id": 115, "word": "there", "pos": "代词", "translation": "那里"}, {"id": 116, "word": "work", "pos": "动词", "translation": "工作"}, {"id": 117, "word": "down", "pos": "副词", "translation": "向下"}, {"id": 118, "word": "may", "pos": "情态动词", "translation": "可能"}, {"id": 119, "word": "after", "pos": "介词", "translation": "在...后"}, {"id": 120, "word": "should", "pos": "情态动词", "translation": "应该"}, {"id": 121, "word": "call", "pos": "动词", "translation": "打电话"}, {"id": 122, "word": "world", "pos": "名词", "translation": "世界"}, {"id": 123, "word": "over", "pos": "介词", "translation": "在...上"}, {"id": 124, "word": "school", "pos": "名词", "translation": "学校"}, {"id": 125, "word": "still", "pos": "副词", "translation": "仍然"}, {"id": 126, "word": "try", "pos": "动词", "translation": "尝试"}, {"id": 127, "word": "in", "pos": "副词", "translation": "进"}, {"id": 128, "word": "as", "pos": "副词", "translation": "同样"}, {"id": 129, "word": "last", "pos": "形容词", "translation": "最后"}, {"id": 130, "word": "ask", "pos": "动词", "translation": "问"}, {"id": 131, "word": "need", "pos": "动词", "translation": "需要"}, {"id": 132, "word": "too", "pos": "副词", "translation": "也"}, {"id": 133, "word": "feel", "pos": "动词", "translation": "感觉"}, {"id": 134, "word": "three", "pos": "数词", "translation": "三"}, {"id": 135, "word": "when", "pos": "副词", "translation": "何时"}, {"id": 136, "word": "state", "pos": "名词", "translation": "州，状态"}, {"id": 137, "word": "never", "pos": "副词", "translation": "从不"}, {"id": 138, "word": "become", "pos": "动词", "translation": "变成"}, {"id": 139, "word": "between", "pos": "介词", "translation": "在...之间"}, {"id": 140, "word": "high", "pos": "形容词", "translation": "高的"}, {"id": 141, "word": "really", "pos": "副词", "translation": "真地"}, {"id": 142, "word": "something", "pos": "代词", "translation": "某事"}, {"id": 143, "word": "most", "pos": "副词", "translation": "最"}, {"id": 144, "word": "another", "pos": "代词", "translation": "另一个"}, {"id": 145, "word": "much", "pos": "形容词", "translation": "许多"}, {"id": 146, "word": "family", "pos": "名词", "translation": "家庭"}, {"id": 147, "word": "own", "pos": "形容词", "translation": "自己的"}, {"id": 148, "word": "out", "pos": "介词", "translation": "通过"}, {"id": 149, "word": "leave", "pos": "动词", "translation": "离开"}, {"id": 150, "word": "put", "pos": "动词", "translation": "放"}, {"id": 151, "word": "old", "pos": "形容词", "translation": "老的"}, {"id": 152, "word": "while", "pos": "连词", "translation": "当...时"}, {"id": 153, "word": "mean", "pos": "动词", "translation": "意思是"}, {"id": 154, "word": "on", "pos": "副词", "translation": "继续"}, {"id": 155, "word": "keep", "pos": "动词", "translation": "保持"}, {"id": 156, "word": "student", "pos": "名词", "translation": "学生"}, {"id": 157, "word": "why", "pos": "副词", "translation": "为什么"}, {"id": 158, "word": "let", "pos": "动词", "translation": "让"}, {"id": 159, "word": "great", "pos": "形容词", "translation": "伟大的"}, {"id": 160, "word": "same", "pos": "形容词", "translation": "相同的"}, {"id": 161, "word": "big", "pos": "形容词", "translation": "大的"}, {"id": 162, "word": "group", "pos": "名词", "translation": "组"}, {"id": 163, "word": "begin", "pos": "动词", "translation": "开始"}, {"id": 164, "word": "seem", "pos": "动词", "translation": "似乎"}, {"id": 165, "word": "country", "pos": "名词", "translation": "国家"}, {"id": 166, "word": "help", "pos": "动词", "translation": "帮助"}, {"id": 167, "word": "talk", "pos": "动词", "translation": "谈话"}, {"id": 168, "word": "where", "pos": "副词", "translation": "哪里"}, {"id": 169, "word": "turn", "pos": "动词", "translation": "转"}, {"id": 170, "word": "problem", "pos": "名词", "translation": "问题"}, {"id": 171, "word": "every", "pos": "形容词", "translation": "每个"}, {"id": 172, "word": "start", "pos": "动词", "translation": "开始"}, {"id": 173, "word": "hand", "pos": "名词", "translation": "手"}, {"id": 174, "word": "might", "pos": "情态动词", "translation": "可能"}, {"id": 175, "word": "American", "pos": "形容词", "translation": "美国的"}, {"id": 176, "word": "show", "pos": "动词", "translation": "展示"}, {"id": 177, "word": "part", "pos": "名词", "translation": "部分"}, {"id": 178, "word": "about", "pos": "副词", "translation": "大约"}, {"id": 179, "word": "against", "pos": "介词", "translation": "反对"}, {"id": 180, "word": "place", "pos": "名词", "translation": "地方"}, {"id": 181, "word": "over", "pos": "副词", "translation": "结束"}, {"id": 182, "word": "such", "pos": "形容词", "translation": "这样的"}, {"id": 183, "word": "again", "pos": "副词", "translation": "再"}, {"id": 184, "word": "few", "pos": "形容词", "translation": "少数"}, {"id": 185, "word": "case", "pos": "名词", "translation": "情况"}, {"id": 186, "word": "most", "pos": "代词", "translation": "大多数"}, {"id": 187, "word": "week", "pos": "名词", "translation": "周"}, {"id": 188, "word": "company", "pos": "名词", "translation": "公司"}, {"id": 189, "word": "where", "pos": "连词", "translation": "哪里"}, {"id": 190, "word": "system", "pos": "名词", "translation": "系统"}, {"id": 191, "word": "each", "pos": "形容词", "translation": "每个"}, {"id": 192, "word": "right", "pos": "形容词", "translation": "正确的"}, {"id": 193, "word": "program", "pos": "名词", "translation": "节目，程序"}, {"id": 194, "word": "hear", "pos": "动词", "translation": "听见"}, {"id": 195, "word": "so", "pos": "副词", "translation": "如此"}, {"id": 196, "word": "question", "pos": "名词", "translation": "问题"}, {"id": 197, "word": "during", "pos": "介词", "translation": "在...期间"}, {"id": 198, "word": "work", "pos": "名词", "translation": "工作"}, {"id": 199, "word": "play", "pos": "动词", "translation": "玩"}, {"id": 200, "word": "government", "pos": "名词", "translation": "政府"}, {"id": 201, "word": "run", "pos": "动词", "translation": "跑"}, {"id": 202, "word": "small", "pos": "形容词", "translation": "小的"}, {"id": 203, "word": "number", "pos": "名词", "translation": "数字"}, {"id": 204, "word": "off", "pos": "副词", "translation": "离开"}, {"id": 205, "word": "always", "pos": "副词", "translation": "总是"}, {"id": 206, "word": "move", "pos": "动词", "translation": "移动"}, {"id": 207, "word": "like", "pos": "动词", "translation": "喜欢"}, {"id": 208, "word": "night", "pos": "名词", "translation": "夜晚"}, {"id": 209, "word": "live", "pos": "动词", "translation": "生活"}, {"id": 210, "word": "Mr", "pos": "名词", "translation": "先生"}, {"id": 211, "word": "point", "pos": "名词", "translation": "点"}, {"id": 212, "word": "believe", "pos": "动词", "translation": "相信"}, {"id": 213, "word": "hold", "pos": "动词", "translation": "握住"}, {"id": 214, "word": "today", "pos": "名词", "translation": "今天"}, {"id": 215, "word": "bring", "pos": "动词", "translation": "带来"}, {"id": 216, "word": "happen", "pos": "动词", "translation": "发生"}, {"id": 217, "word": "next", "pos": "形容词", "translation": "下一个"}, {"id": 218, "word": "without", "pos": "介词", "translation": "没有"}, {"id": 219, "word": "before", "pos": "介词", "translation": "在...前"}, {"id": 220, "word": "large", "pos": "形容词", "translation": "大的"}, {"id": 221, "word": "all", "pos": "副词", "translation": "全部"}, {"id": 222, "word": "million", "pos": "数词", "translation": "百万"}, {"id": 223, "word": "must", "pos": "情态动词", "translation": "必须"}, {"id": 224, "word": "home", "pos": "名词", "translation": "家"}, {"id": 225, "word": "under", "pos": "介词", "translation": "在...下"}, {"id": 226, "word": "water", "pos": "名词", "translation": "水"}, {"id": 227, "word": "room", "pos": "名词", "translation": "房间"}, {"id": 228, "word": "write", "pos": "动词", "translation": "写"}, {"id": 229, "word": "mother", "pos": "名词", "translation": "母亲"}, {"id": 230, "word": "area", "pos": "名词", "translation": "地区"}, {"id": 231, "word": "national", "pos": "形容词", "translation": "国家的"}, {"id": 232, "word": "money", "pos": "名词", "translation": "钱"}, {"id": 233, "word": "story", "pos": "名词", "translation": "故事"}, {"id": 234, "word": "young", "pos": "形容词", "translation": "年轻的"}, {"id": 235, "word": "fact", "pos": "名词", "translation": "事实"}, {"id": 236, "word": "month", "pos": "名词", "translation": "月"}, {"id": 237, "word": "different", "pos": "形容词", "translation": "不同的"}, {"id": 238, "word": "lot", "pos": "名词", "translation": "许多"}, {"id": 239, "word": "right", "pos": "名词", "translation": "权利"}, {"id": 240, "word": "study", "pos": "动词", "translation": "学习"}, {"id": 241, "word": "book", "pos": "名词", "translation": "书"}, {"id": 242, "word": "eye", "pos": "名词", "translation": "眼睛"}, {"id": 243, "word": "job", "pos": "名词", "translation": "工作"}, {"id": 244, "word": "word", "pos": "名词", "translation": "词"}, {"id": 245, "word": "though", "pos": "连词", "translation": "虽然"}, {"id": 246, "word": "business", "pos": "名词", "translation": "商业"}, {"id": 247, "word": "issue", "pos": "名词", "translation": "问题"}, {"id": 248, "word": "side", "pos": "名词", "translation": "边"}, {"id": 249, "word": "four", "pos": "数词", "translation": "四"}, {"id": 250, "word": "far", "pos": "形容词", "translation": "远的"}, {"id": 251, "word": "black", "pos": "形容词", "translation": "黑的"}, {"id": 252, "word": "long", "pos": "形容词", "translation": "长的"}, {"id": 253, "word": "both", "pos": "代词", "translation": "两者"}, {"id": 254, "word": "little", "pos": "形容词", "translation": "小的"}, {"id": 255, "word": "house", "pos": "名词", "translation": "房子"}, {"id": 256, "word": "yes", "pos": "感叹词", "translation": "是"}, {"id": 257, "word": "after", "pos": "副词", "translation": "以后"}, {"id": 258, "word": "since", "pos": "连词", "translation": "自从"}, {"id": 259, "word": "long", "pos": "副词", "translation": "长久"}, {"id": 260, "word": "provide", "pos": "动词", "translation": "提供"}, {"id": 261, "word": "service", "pos": "名词", "translation": "服务"}, {"id": 262, "word": "around", "pos": "介词", "translation": "围绕"}, {"id": 263, "word": "friend", "pos": "名词", "translation": "朋友"}, {"id": 264, "word": "important", "pos": "形容词", "translation": "重要的"}, {"id": 265, "word": "father", "pos": "名词", "translation": "父亲"}, {"id": 266, "word": "sit", "pos": "动词", "translation": "坐"}, {"id": 267, "word": "away", "pos": "副词", "translation": "离开"}, {"id": 268, "word": "until", "pos": "连词", "translation": "直到"}, {"id": 269, "word": "power", "pos": "名词", "translation": "力量"}, {"id": 270, "word": "hour", "pos": "名词", "translation": "小时"}, {"id": 271, "word": "game", "pos": "名词", "translation": "游戏"}, {"id": 272, "word": "often", "pos": "副词", "translation": "经常"}, {"id": 273, "word": "yet", "pos": "副词", "translation": "还"}, {"id": 274, "word": "line", "pos": "名词", "translation": "线"}, {"id": 275, "word": "political", "pos": "形容词", "translation": "政治的"}, {"id": 276, "word": "end", "pos": "名词", "translation": "结束"}, {"id": 277, "word": "among", "pos": "介词", "translation": "在...中"}, {"id": 278, "word": "ever", "pos": "副词", "translation": "曾经"}, {"id": 279, "word": "stand", "pos": "动词", "translation": "站"}, {"id": 280, "word": "bad", "pos": "形容词", "translation": "坏的"}, {"id": 281, "word": "lose", "pos": "动词", "translation": "失去"}, {"id": 282, "word": "however", "pos": "副词", "translation": "然而"}, {"id": 283, "word": "member", "pos": "名词", "translation": "成员"}, {"id": 284, "word": "pay", "pos": "动词", "translation": "支付"}, {"id": 285, "word": "law", "pos": "名词", "translation": "法律"}, {"id": 286, "word": "meet", "pos": "动词", "translation": "遇见"}, {"id": 287, "word": "car", "pos": "名词", "translation": "汽车"}, {"id": 288, "word": "city", "pos": "名词", "translation": "城市"}, {"id": 289, "word": "almost", "pos": "副词", "translation": "几乎"}, {"id": 290, "word": "include", "pos": "动词", "translation": "包括"}, {"id": 291, "word": "continue", "pos": "动词", "translation": "继续"}, {"id": 292, "word": "set", "pos": "动词", "translation": "设置"}, {"id": 293, "word": "later", "pos": "副词", "translation": "后来"}, {"id": 294, "word": "community", "pos": "名词", "translation": "社区"}, {"id": 295, "word": "much", "pos": "代词", "translation": "许多"}, {"id": 296, "word": "name", "pos": "名词", "translation": "名字"}, {"id": 297, "word": "five", "pos": "数词", "translation": "五"}, {"id": 298, "word": "once", "pos": "副词", "translation": "一次"}, {"id": 299, "word": "white", "pos": "形容词", "translation": "白的"}, {"id": 300, "word": "least", "pos": "形容词", "translation": "最少"}, {"id": 301, "word": "president", "pos": "名词", "translation": "总统"}, {"id": 302, "word": "learn", "pos": "动词", "translation": "学习"}, {"id": 303, "word": "real", "pos": "形容词", "translation": "真的"}, {"id": 304, "word": "change", "pos": "动词", "translation": "改变"}, {"id": 305, "word": "team", "pos": "名词", "translation": "团队"}, {"id": 306, "word": "minute", "pos": "名词", "translation": "分钟"}, {"id": 307, "word": "best", "pos": "形容词", "translation": "最好的"}, {"id": 308, "word": "several", "pos": "形容词", "translation": "几个"}, {"id": 309, "word": "idea", "pos": "名词", "translation": "想法"}, {"id": 310, "word": "kid", "pos": "名词", "translation": "孩子"}, {"id": 311, "word": "body", "pos": "名词", "translation": "身体"}, {"id": 312, "word": "information", "pos": "名词", "translation": "信息"}, {"id": 313, "word": "nothing", "pos": "代词", "translation": "没什么"}, {"id": 314, "word": "ago", "pos": "副词", "translation": "以前"}, {"id": 315, "word": "right", "pos": "副词", "translation": "正好"}, {"id": 316, "word": "lead", "pos": "动词", "translation": "领导"}, {"id": 317, "word": "social", "pos": "形容词", "translation": "社会的"}, {"id": 318, "word": "understand", "pos": "动词", "translation": "理解"}, {"id": 319, "word": "whether", "pos": "连词", "translation": "是否"}, {"id": 320, "word": "back", "pos": "名词", "translation": "背部"}, {"id": 321, "word": "watch", "pos": "动词", "translation": "观看"}, {"id": 322, "word": "together", "pos": "副词", "translation": "一起"}, {"id": 323, "word": "follow", "pos": "动词", "translation": "跟随"}, {"id": 324, "word": "around", "pos": "副词", "translation": "大约"}, {"id": 325, "word": "parent", "pos": "名词", "translation": "父母"}, {"id": 326, "word": "only", "pos": "形容词", "translation": "唯一的"}, {"id": 327, "word": "stop", "pos": "动词", "translation": "停止"}, {"id": 328, "word": "face", "pos": "名词", "translation": "脸"}, {"id": 329, "word": "anything", "pos": "代词", "translation": "任何事"}, {"id": 330, "word": "create", "pos": "动词", "translation": "创造"}, {"id": 331, "word": "public", "pos": "形容词", "translation": "公共的"}, {"id": 332, "word": "already", "pos": "副词", "translation": "已经"}, {"id": 333, "word": "speak", "pos": "动词", "translation": "说"}, {"id": 334, "word": "others", "pos": "代词", "translation": "其他人"}, {"id": 335, "word": "read", "pos": "动词", "translation": "读"}, {"id": 336, "word": "level", "pos": "名词", "translation": "水平"}, {"id": 337, "word": "allow", "pos": "动词", "translation": "允许"}, {"id": 338, "word": "add", "pos": "动词", "translation": "添加"}, {"id": 339, "word": "office", "pos": "名词", "translation": "办公室"}, {"id": 340, "word": "spend", "pos": "动词", "translation": "花费"}, {"id": 341, "word": "door", "pos": "名词", "translation": "门"}, {"id": 342, "word": "health", "pos": "名词", "translation": "健康"}, {"id": 343, "word": "person", "pos": "名词", "translation": "人"}, {"id": 344, "word": "art", "pos": "名词", "translation": "艺术"}, {"id": 345, "word": "sure", "pos": "形容词", "translation": "确定的"}, {"id": 346, "word": "such", "pos": "代词", "translation": "这样的人/物"}, {"id": 347, "word": "war", "pos": "名词", "translation": "战争"}, {"id": 348, "word": "history", "pos": "名词", "translation": "历史"}, {"id": 349, "word": "party", "pos": "名词", "translation": "聚会，政党"}, {"id": 350, "word": "within", "pos": "介词", "translation": "在...内"}, {"id": 351, "word": "grow", "pos": "动词", "translation": "成长"}, {"id": 352, "word": "result", "pos": "名词", "translation": "结果"}, {"id": 353, "word": "open", "pos": "动词", "translation": "打开"}, {"id": 354, "word": "morning", "pos": "名词", "translation": "早晨"}, {"id": 355, "word": "walk", "pos": "动词", "translation": "走"}, {"id": 356, "word": "reason", "pos": "名词", "translation": "原因"}, {"id": 357, "word": "low", "pos": "形容词", "translation": "低的"}, {"id": 358, "word": "win", "pos": "动词", "translation": "赢"}, {"id": 359, "word": "research", "pos": "名词", "translation": "研究"}, {"id": 360, "word": "girl", "pos": "名词", "translation": "女孩"}, {"id": 361, "word": "guy", "pos": "名词", "translation": "家伙"}, {"id": 362, "word": "food", "pos": "名词", "translation": "食物"}, {"id": 363, "word": "moment", "pos": "名词", "translation": "时刻"}, {"id": 364, "word": "himself", "pos": "代词", "translation": "他自己"}, {"id": 365, "word": "air", "pos": "名词", "translation": "空气"}, {"id": 366, "word": "teacher", "pos": "名词", "translation": "老师"}, {"id": 367, "word": "force", "pos": "名词", "translation": "力量"}, {"id": 368, "word": "offer", "pos": "动词", "translation": "提供"}, {"id": 369, "word": "enough", "pos": "形容词", "translation": "足够的"}, {"id": 370, "word": "both", "pos": "副词", "translation": "两者都"}, {"id": 371, "word": "education", "pos": "名词", "translation": "教育"}, {"id": 372, "word": "across", "pos": "介词", "translation": "穿过"}, {"id": 373, "word": "although", "pos": "连词", "translation": "虽然"}, {"id": 374, "word": "remember", "pos": "动词", "translation": "记得"}, {"id": 375, "word": "foot", "pos": "名词", "translation": "脚"}, {"id": 376, "word": "second", "pos": "序数词", "translation": "第二"}, {"id": 377, "word": "boy", "pos": "名词", "translation": "男孩"}, {"id": 378, "word": "maybe", "pos": "副词", "translation": "也许"}, {"id": 379, "word": "toward", "pos": "介词", "translation": "朝向"}, {"id": 380, "word": "able", "pos": "形容词", "translation": "能够"}, {"id": 381, "word": "age", "pos": "名词", "translation": "年龄"}, {"id": 382, "word": "off", "pos": "形容词", "translation": "关的"}, {"id": 383, "word": "policy", "pos": "名词", "translation": "政策"}, {"id": 384, "word": "everything", "pos": "代词", "translation": "一切"}, {"id": 385, "word": "love", "pos": "名词", "translation": "爱"}, {"id": 386, "word": "process", "pos": "名词", "translation": "过程"}, {"id": 387, "word": "music", "pos": "名词", "translation": "音乐"}, {"id": 388, "word": "including", "pos": "介词", "translation": "包括"}, {"id": 389, "word": "consider", "pos": "动词", "translation": "考虑"}, {"id": 390, "word": "appear", "pos": "动词", "translation": "出现"}, {"id": 391, "word": "actually", "pos": "副词", "translation": "实际上"}, {"id": 392, "word": "buy", "pos": "动词", "translation": "买"}, {"id": 393, "word": "probably", "pos": "副词", "translation": "可能"}, {"id": 394, "word": "human", "pos": "形容词", "translation": "人类的"}, {"id": 395, "word": "wait", "pos": "动词", "translation": "等待"}, {"id": 396, "word": "serve", "pos": "动词", "translation": "服务"}, {"id": 397, "word": "market", "pos": "名词", "translation": "市场"}, {"id": 398, "word": "die", "pos": "动词", "translation": "死"}, {"id": 399, "word": "send", "pos": "动词", "translation": "发送"}, {"id": 400, "word": "expect", "pos": "动词", "translation": "期望"}, {"id": 401, "word": "home", "pos": "副词", "translation": "在家"}, {"id": 402, "word": "sense", "pos": "名词", "translation": "感觉"}, {"id": 403, "word": "build", "pos": "动词", "translation": "建造"}, {"id": 404, "word": "stay", "pos": "动词", "translation": "停留"}, {"id": 405, "word": "fall", "pos": "动词", "translation": "落下"}, {"id": 406, "word": "oh", "pos": "感叹词", "translation": "哦"}, {"id": 407, "word": "nation", "pos": "名词", "translation": "国家"}, {"id": 408, "word": "plan", "pos": "名词", "translation": "计划"}, {"id": 409, "word": "cut", "pos": "动词", "translation": "切"}, {"id": 410, "word": "college", "pos": "名词", "translation": "大学"}, {"id": 411, "word": "interest", "pos": "名词", "translation": "兴趣"}, {"id": 412, "word": "death", "pos": "名词", "translation": "死亡"}, {"id": 413, "word": "course", "pos": "名词", "translation": "课程"}, {"id": 414, "word": "someone", "pos": "代词", "translation": "某人"}, {"id": 415, "word": "experience", "pos": "名词", "translation": "经验"}, {"id": 416, "word": "behind", "pos": "介词", "translation": "在...后"}, {"id": 417, "word": "reach", "pos": "动词", "translation": "到达"}, {"id": 418, "word": "local", "pos": "形容词", "translation": "当地的"}, {"id": 419, "word": "kill", "pos": "动词", "translation": "杀"}, {"id": 420, "word": "six", "pos": "数词", "translation": "六"}, {"id": 421, "word": "remain", "pos": "动词", "translation": "保持"}, {"id": 422, "word": "effect", "pos": "名词", "translation": "影响"}, {"id": 423, "word": "use", "pos": "名词", "translation": "使用"}, {"id": 424, "word": "yeah", "pos": "感叹词", "translation": "是"}, {"id": 425, "word": "suggest", "pos": "动词", "translation": "建议"}, {"id": 426, "word": "class", "pos": "名词", "translation": "班级"}, {"id": 427, "word": "control", "pos": "动词", "translation": "控制"}, {"id": 428, "word": "raise", "pos": "动词", "translation": "举起"}, {"id": 429, "word": "care", "pos": "动词", "translation": "关心"}, {"id": 430, "word": "perhaps", "pos": "副词", "translation": "也许"}, {"id": 431, "word": "little", "pos": "副词", "translation": "稍许"}, {"id": 432, "word": "late", "pos": "形容词", "translation": "晚的"}, {"id": 433, "word": "hard", "pos": "形容词", "translation": "困难的"}, {"id": 434, "word": "field", "pos": "名词", "translation": "领域"}, {"id": 435, "word": "else", "pos": "副词", "translation": "其他"}, {"id": 436, "word": "pass", "pos": "动词", "translation": "通过"}, {"id": 437, "word": "sell", "pos": "动词", "translation": "卖"}, {"id": 438, "word": "major", "pos": "形容词", "translation": "主要的"}, {"id": 439, "word": "sometimes", "pos": "副词", "translation": "有时"}, {"id": 440, "word": "require", "pos": "动词", "translation": "需要"}, {"id": 441, "word": "along", "pos": "介词", "translation": "沿着"}, {"id": 442, "word": "development", "pos": "名词", "translation": "发展"}, {"id": 443, "word": "themselves", "pos": "代词", "translation": "他们自己"}, {"id": 444, "word": "report", "pos": "名词", "translation": "报告"}, {"id": 445, "word": "role", "pos": "名词", "translation": "角色"}, {"id": 446, "word": "better", "pos": "形容词", "translation": "更好的"}, {"id": 447, "word": "economic", "pos": "形容词", "translation": "经济的"}, {"id": 448, "word": "effort", "pos": "名词", "translation": "努力"}, {"id": 449, "word": "up", "pos": "形容词", "translation": "向上的"}, {"id": 450, "word": "decide", "pos": "动词", "translation": "决定"}, {"id": 451, "word": "rate", "pos": "名词", "translation": "比率"}, {"id": 452, "word": "strong", "pos": "形容词", "translation": "强壮的"}, {"id": 453, "word": "possible", "pos": "形容词", "translation": "可能的"}, {"id": 454, "word": "heart", "pos": "名词", "translation": "心"}, {"id": 455, "word": "drug", "pos": "名词", "translation": "药"}, {"id": 456, "word": "show", "pos": "名词", "translation": "表演"}, {"id": 457, "word": "leader", "pos": "名词", "translation": "领导者"}, {"id": 458, "word": "light", "pos": "名词", "translation": "光"}, {"id": 459, "word": "voice", "pos": "名词", "translation": "声音"}, {"id": 460, "word": "wife", "pos": "名词", "translation": "妻子"}, {"id": 461, "word": "whole", "pos": "形容词", "translation": "整个的"}, {"id": 462, "word": "police", "pos": "名词", "translation": "警察"}, {"id": 463, "word": "mind", "pos": "名词", "translation": "思想"}, {"id": 464, "word": "finally", "pos": "副词", "translation": "最后"}, {"id": 465, "word": "pull", "pos": "动词", "translation": "拉"}, {"id": 466, "word": "return", "pos": "动词", "translation": "返回"}, {"id": 467, "word": "explain", "pos": "动词", "translation": "解释"}, {"id": 468, "word": "carry", "pos": "动词", "translation": "携带"}, {"id": 469, "word": "develop", "pos": "动词", "translation": "发展"}, {"id": 470, "word": "view", "pos": "名词", "translation": "观点"}, {"id": 471, "word": "free", "pos": "形容词", "translation": "自由的"}, {"id": 472, "word": "common", "pos": "形容词", "translation": "共同的"}, {"id": 473, "word": "short", "pos": "形容词", "translation": "短的"}, {"id": 474, "word": "tax", "pos": "名词", "translation": "税"}, {"id": 475, "word": "matter", "pos": "名词", "translation": "事情"}, {"id": 476, "word": "particular", "pos": "形容词", "translation": "特别的"}, {"id": 477, "word": "attention", "pos": "名词", "translation": "注意"}, {"id": 478, "word": "value", "pos": "名词", "translation": "价值"}, {"id": 479, "word": "action", "pos": "名词", "translation": "行动"}, {"id": 480, "word": "model", "pos": "名词", "translation": "模型"}, {"id": 481, "word": "season", "pos": "名词", "translation": "季节"}, {"id": 482, "word": "early", "pos": "形容词", "translation": "早的"}, {"id": 483, "word": "position", "pos": "名词", "translation": "位置"}, {"id": 484, "word": "player", "pos": "名词", "translation": "选手"}, {"id": 485, "word": "agree", "pos": "动词", "translation": "同意"}, {"id": 486, "word": "especially", "pos": "副词", "translation": "尤其"}, {"id": 487, "word": "record", "pos": "名词", "translation": "记录"}, {"id": 488, "word": "pick", "pos": "动词", "translation": "挑选"}, {"id": 489, "word": "wear", "pos": "动词", "translation": "穿"}, {"id": 490, "word": "paper", "pos": "名词", "translation": "纸"}, {"id": 491, "word": "space", "pos": "名词", "translation": "空间"}, {"id": 492, "word": "ground", "pos": "名词", "translation": "地面"}, {"id": 493, "word": "form", "pos": "名词", "translation": "形式"}, {"id": 494, "word": "support", "pos": "动词", "translation": "支持"}, {"id": 495, "word": "event", "pos": "名词", "translation": "事件"}, {"id": 496, "word": "official", "pos": "名词", "translation": "官员"}, {"id": 497, "word": "whose", "pos": "代词", "translation": "谁的"}, {"id": 498, "word": "couple", "pos": "名词", "translation": "夫妇"}, {"id": 499, "word": "site", "pos": "名词", "translation": "地点"}, {"id": 500, "word": "end", "pos": "动词", "translation": "结束"}, {"id": 501, "word": "project", "pos": "名词", "translation": "项目"}, {"id": 502, "word": "hit", "pos": "动词", "translation": "打"}, {"id": 503, "word": "base", "pos": "名词", "translation": "基础"}, {"id": 504, "word": "activity", "pos": "名词", "translation": "活动"}, {"id": 505, "word": "star", "pos": "名词", "translation": "星星"}, {"id": 506, "word": "table", "pos": "名词", "translation": "桌子"}, {"id": 507, "word": "need", "pos": "名词", "translation": "需要"}, {"id": 508, "word": "court", "pos": "名词", "translation": "法庭"}, {"id": 509, "word": "produce", "pos": "动词", "translation": "生产"}, {"id": 510, "word": "eat", "pos": "动词", "translation": "吃"}, {"id": 511, "word": "American", "pos": "名词", "translation": "美国人"}, {"id": 512, "word": "teach", "pos": "动词", "translation": "教"}, {"id": 513, "word": "oil", "pos": "名词", "translation": "油"}, {"id": 514, "word": "half", "pos": "名词", "translation": "一半"}, {"id": 515, "word": "situation", "pos": "名词", "translation": "情况"}, {"id": 516, "word": "easy", "pos": "形容词", "translation": "容易的"}, {"id": 517, "word": "cost", "pos": "名词", "translation": "成本"}, {"id": 518, "word": "industry", "pos": "名词", "translation": "工业"}, {"id": 519, "word": "figure", "pos": "名词", "translation": "数字"}, {"id": 520, "word": "face", "pos": "动词", "translation": "面对"}, {"id": 521, "word": "street", "pos": "名词", "translation": "街道"}, {"id": 522, "word": "image", "pos": "名词", "translation": "图像"}, {"id": 523, "word": "itself", "pos": "代词", "translation": "它自己"}, {"id": 524, "word": "phone", "pos": "名词", "translation": "电话"}, {"id": 525, "word": "either", "pos": "副词", "translation": "也"}, {"id": 526, "word": "data", "pos": "名词", "translation": "数据"}, {"id": 527, "word": "cover", "pos": "动词", "translation": "覆盖"}, {"id": 528, "word": "quite", "pos": "副词", "translation": "相当"}, {"id": 529, "word": "picture", "pos": "名词", "translation": "图片"}, {"id": 530, "word": "clear", "pos": "形容词", "translation": "清楚的"}, {"id": 531, "word": "practice", "pos": "名词", "translation": "练习"}, {"id": 532, "word": "piece", "pos": "名词", "translation": "片"}, {"id": 533, "word": "land", "pos": "名词", "translation": "土地"}, {"id": 534, "word": "recent", "pos": "形容词", "translation": "最近的"}, {"id": 535, "word": "describe", "pos": "动词", "translation": "描述"}, {"id": 536, "word": "product", "pos": "名词", "translation": "产品"}, {"id": 537, "word": "doctor", "pos": "名词", "translation": "医生"}, {"id": 538, "word": "wall", "pos": "名词", "translation": "墙"}, {"id": 539, "word": "patient", "pos": "名词", "translation": "病人"}, {"id": 540, "word": "worker", "pos": "名词", "translation": "工人"}, {"id": 541, "word": "news", "pos": "名词", "translation": "新闻"}, {"id": 542, "word": "test", "pos": "名词", "translation": "测试"}, {"id": 543, "word": "movie", "pos": "名词", "translation": "电影"}, {"id": 544, "word": "certain", "pos": "形容词", "translation": "确定的"}, {"id": 545, "word": "north", "pos": "名词", "translation": "北"}, {"id": 546, "word": "love", "pos": "动词", "translation": "爱"}, {"id": 547, "word": "personal", "pos": "形容词", "translation": "个人的"}, {"id": 548, "word": "open", "pos": "形容词", "translation": "开着的"}, {"id": 549, "word": "support", "pos": "名词", "translation": "支持"}, {"id": 550, "word": "simply", "pos": "副词", "translation": "简单地"}, {"id": 551, "word": "third", "pos": "序数词", "translation": "第三"}, {"id": 552, "word": "technology", "pos": "名词", "translation": "技术"}, {"id": 553, "word": "catch", "pos": "动词", "translation": "抓住"}, {"id": 554, "word": "step", "pos": "名词", "translation": "步骤"}, {"id": 555, "word": "baby", "pos": "名词", "translation": "婴儿"}, {"id": 556, "word": "computer", "pos": "名词", "translation": "电脑"}, {"id": 557, "word": "type", "pos": "名词", "translation": "类型"}, {"id": 558, "word": "attention", "pos": "名词", "translation": "注意"}, {"id": 559, "word": "draw", "pos": "动词", "translation": "画"}, {"id": 560, "word": "film", "pos": "名词", "translation": "电影"}, {"id": 561, "word": "Republican", "pos": "名词", "translation": "共和党人"}, {"id": 562, "word": "tree", "pos": "名词", "translation": "树"}, {"id": 563, "word": "source", "pos": "名词", "translation": "来源"}, {"id": 564, "word": "red", "pos": "形容词", "translation": "红的"}, {"id": 565, "word": "nearly", "pos": "副词", "translation": "几乎"}, {"id": 566, "word": "organization", "pos": "名词", "translation": "组织"}, {"id": 567, "word": "choose", "pos": "动词", "translation": "选择"}, {"id": 568, "word": "cause", "pos": "名词", "translation": "原因"}, {"id": 569, "word": "hair", "pos": "名词", "translation": "头发"}, {"id": 570, "word": "look", "pos": "名词", "translation": "看"}, {"id": 571, "word": "point", "pos": "动词", "translation": "指向"}, {"id": 572, "word": "century", "pos": "名词", "translation": "世纪"}, {"id": 573, "word": "evidence", "pos": "名词", "translation": "证据"}, {"id": 574, "word": "window", "pos": "名词", "translation": "窗户"}, {"id": 575, "word": "difficult", "pos": "形容词", "translation": "困难的"}, {"id": 576, "word": "listen", "pos": "动词", "translation": "听"}, {"id": 577, "word": "soon", "pos": "副词", "translation": "很快"}, {"id": 578, "word": "culture", "pos": "名词", "translation": "文化"}, {"id": 579, "word": "billion", "pos": "数词", "translation": "十亿"}, {"id": 580, "word": "chance", "pos": "名词", "translation": "机会"}, {"id": 581, "word": "brother", "pos": "名词", "translation": "兄弟"}, {"id": 582, "word": "energy", "pos": "名词", "translation": "能量"}, {"id": 583, "word": "period", "pos": "名词", "translation": "时期"}, {"id": 584, "word": "course", "pos": "名词", "translation": "过程"}, {"id": 585, "word": "summer", "pos": "名词", "translation": "夏天"}, {"id": 586, "word": "less", "pos": "形容词", "translation": "更少"}, {"id": 587, "word": "realize", "pos": "动词", "translation": "意识到"}, {"id": 588, "word": "hundred", "pos": "数词", "translation": "百"}, {"id": 589, "word": "available", "pos": "形容词", "translation": "可用的"}, {"id": 590, "word": "plant", "pos": "名词", "translation": "植物"}, {"id": 591, "word": "likely", "pos": "形容词", "translation": "可能的"}, {"id": 592, "word": "opportunity", "pos": "名词", "translation": "机会"}, {"id": 593, "word": "term", "pos": "名词", "translation": "学期，术语"}, {"id": 594, "word": "short", "pos": "副词", "translation": "短"}, {"id": 595, "word": "letter", "pos": "名词", "translation": "信"}, {"id": 596, "word": "condition", "pos": "名词", "translation": "条件"}, {"id": 597, "word": "choice", "pos": "名词", "translation": "选择"}, {"id": 598, "word": "place", "pos": "动词", "translation": "放置"}, {"id": 599, "word": "single", "pos": "形容词", "translation": "单一的"}, {"id": 600, "word": "rule", "pos": "名词", "translation": "规则"}, {"id": 601, "word": "daughter", "pos": "名词", "translation": "女儿"}, {"id": 602, "word": "administration", "pos": "名词", "translation": "管理"}, {"id": 603, "word": "south", "pos": "名词", "translation": "南"}, {"id": 604, "word": "husband", "pos": "名词", "translation": "丈夫"}, {"id": 605, "word": "Congress", "pos": "名词", "translation": "国会"}, {"id": 606, "word": "floor", "pos": "名词", "translation": "地板"}, {"id": 607, "word": "campaign", "pos": "名词", "translation": "运动"}, {"id": 608, "word": "material", "pos": "名词", "translation": "材料"}, {"id": 609, "word": "population", "pos": "名词", "translation": "人口"}, {"id": 610, "word": "well", "pos": "名词", "translation": "井"}, {"id": 611, "word": "call", "pos": "名词", "translation": "电话"}, {"id": 612, "word": "economy", "pos": "名词", "translation": "经济"}, {"id": 613, "word": "medical", "pos": "形容词", "translation": "医学的"}, {"id": 614, "word": "hospital", "pos": "名词", "translation": "医院"}, {"id": 615, "word": "church", "pos": "名词", "translation": "教堂"}, {"id": 616, "word": "close", "pos": "动词", "translation": "关闭"}, {"id": 617, "word": "thousand", "pos": "数词", "translation": "千"}, {"id": 618, "word": "risk", "pos": "名词", "translation": "风险"}, {"id": 619, "word": "current", "pos": "形容词", "translation": "当前的"}, {"id": 620, "word": "fire", "pos": "名词", "translation": "火"}, {"id": 621, "word": "future", "pos": "名词", "translation": "未来"}, {"id": 622, "word": "wrong", "pos": "形容词", "translation": "错的"}, {"id": 623, "word": "involve", "pos": "动词", "translation": "涉及"}, {"id": 624, "word": "defense", "pos": "名词", "translation": "防御"}, {"id": 625, "word": "anyone", "pos": "代词", "translation": "任何人"}, {"id": 626, "word": "increase", "pos": "动词", "translation": "增加"}, {"id": 627, "word": "security", "pos": "名词", "translation": "安全"}, {"id": 628, "word": "bank", "pos": "名词", "translation": "银行"}, {"id": 629, "word": "myself", "pos": "代词", "translation": "我自己"}, {"id": 630, "word": "certainly", "pos": "副词", "translation": "当然"}, {"id": 631, "word": "west", "pos": "名词", "translation": "西"}, {"id": 632, "word": "sport", "pos": "名词", "translation": "运动"}, {"id": 633, "word": "board", "pos": "名词", "translation": "板"}, {"id": 634, "word": "seek", "pos": "动词", "translation": "寻找"}, {"id": 635, "word": "per", "pos": "介词", "translation": "每"}, {"id": 636, "word": "subject", "pos": "名词", "translation": "科目"}, {"id": 637, "word": "officer", "pos": "名词", "translation": "军官"}, {"id": 638, "word": "private", "pos": "形容词", "translation": "私人的"}, {"id": 639, "word": "rest", "pos": "名词", "translation": "休息"}, {"id": 640, "word": "behavior", "pos": "名词", "translation": "行为"}, {"id": 641, "word": "deal", "pos": "动词", "translation": "处理"}, {"id": 642, "word": "performance", "pos": "名词", "translation": "表现"}, {"id": 643, "word": "fight", "pos": "动词", "translation": "打架"}, {"id": 644, "word": "throw", "pos": "动词", "translation": "扔"}, {"id": 645, "word": "top", "pos": "名词", "translation": "顶部"}, {"id": 646, "word": "quickly", "pos": "副词", "translation": "快速地"}, {"id": 647, "word": "past", "pos": "形容词", "translation": "过去的"}, {"id": 648, "word": "goal", "pos": "名词", "translation": "目标"}, {"id": 649, "word": "second", "pos": "名词", "translation": "秒"}, {"id": 650, "word": "bed", "pos": "名词", "translation": "床"}, {"id": 651, "word": "order", "pos": "名词", "translation": "命令"}, {"id": 652, "word": "author", "pos": "名词", "translation": "作者"}, {"id": 653, "word": "fill", "pos": "动词", "translation": "填满"}, {"id": 654, "word": "represent", "pos": "动词", "translation": "代表"}, {"id": 655, "word": "focus", "pos": "动词", "translation": "集中"}, {"id": 656, "word": "foreign", "pos": "形容词", "translation": "外国的"}, {"id": 657, "word": "drop", "pos": "动词", "translation": "落下"}, {"id": 658, "word": "plan", "pos": "动词", "translation": "计划"}, {"id": 659, "word": "blood", "pos": "名词", "translation": "血"}, {"id": 660, "word": "upon", "pos": "介词", "translation": "在...上"}, {"id": 661, "word": "agency", "pos": "名词", "translation": "机构"}, {"id": 662, "word": "push", "pos": "动词", "translation": "推"}, {"id": 663, "word": "nature", "pos": "名词", "translation": "自然"}, {"id": 664, "word": "color", "pos": "名词", "translation": "颜色"}, {"id": 665, "word": "no", "pos": "形容词", "translation": "没有"}, {"id": 666, "word": "recently", "pos": "副词", "translation": "最近"}, {"id": 667, "word": "store", "pos": "名词", "translation": "商店"}, {"id": 668, "word": "reduce", "pos": "动词", "translation": "减少"}, {"id": 669, "word": "sound", "pos": "名词", "translation": "声音"}, {"id": 670, "word": "note", "pos": "名词", "translation": "笔记"}, {"id": 671, "word": "fine", "pos": "形容词", "translation": "好的"}, {"id": 672, "word": "before", "pos": "连词", "translation": "在...之前"}, {"id": 673, "word": "near", "pos": "介词", "translation": "在...附近"}, {"id": 674, "word": "movement", "pos": "名词", "translation": "运动"}, {"id": 675, "word": "page", "pos": "名词", "translation": "页"}, {"id": 676, "word": "enter", "pos": "动词", "translation": "进入"}, {"id": 677, "word": "share", "pos": "动词", "translation": "分享"}, {"id": 678, "word": "than", "pos": "介词", "translation": "比"}, {"id": 679, "word": "common", "pos": "名词", "translation": "公共用地"}, {"id": 680, "word": "poor", "pos": "形容词", "translation": "贫穷的"}, {"id": 681, "word": "other", "pos": "代词", "translation": "其他"}, {"id": 682, "word": "natural", "pos": "形容词", "translation": "自然的"}, {"id": 683, "word": "race", "pos": "名词", "translation": "种族"}, {"id": 684, "word": "concern", "pos": "名词", "translation": "关心"}, {"id": 685, "word": "series", "pos": "名词", "translation": "系列"}, {"id": 686, "word": "significant", "pos": "形容词", "translation": "重要的"}, {"id": 687, "word": "similar", "pos": "形容词", "translation": "相似的"}, {"id": 688, "word": "hot", "pos": "形容词", "translation": "热的"}, {"id": 689, "word": "language", "pos": "名词", "translation": "语言"}, {"id": 690, "word": "each", "pos": "代词", "translation": "每个"}, {"id": 691, "word": "usually", "pos": "副词", "translation": "通常"}, {"id": 692, "word": "response", "pos": "名词", "translation": "反应"}, {"id": 693, "word": "dead", "pos": "形容词", "translation": "死的"}, {"id": 694, "word": "rise", "pos": "动词", "translation": "上升"}, {"id": 695, "word": "animal", "pos": "名词", "translation": "动物"}, {"id": 696, "word": "factor", "pos": "名词", "translation": "因素"}, {"id": 697, "word": "decade", "pos": "名词", "translation": "十年"}, {"id": 698, "word": "article", "pos": "名词", "translation": "文章"}, {"id": 699, "word": "shoot", "pos": "动词", "translation": "射击"}, {"id": 700, "word": "east", "pos": "名词", "translation": "东"}, {"id": 701, "word": "save", "pos": "动词", "translation": "拯救"}, {"id": 702, "word": "seven", "pos": "数词", "translation": "七"}, {"id": 703, "word": "artist", "pos": "名词", "translation": "艺术家"}, {"id": 704, "word": "away", "pos": "形容词", "translation": "离开的"}, {"id": 705, "word": "scene", "pos": "名词", "translation": "场景"}, {"id": 706, "word": "stock", "pos": "名词", "translation": "股票"}, {"id": 707, "word": "career", "pos": "名词", "translation": "职业"}, {"id": 708, "word": "despite", "pos": "介词", "translation": "尽管"}, {"id": 709, "word": "central", "pos": "形容词", "translation": "中心的"}, {"id": 710, "word": "eight", "pos": "数词", "translation": "八"}, {"id": 711, "word": "thus", "pos": "副词", "translation": "因此"}, {"id": 712, "word": "treatment", "pos": "名词", "translation": "治疗"}, {"id": 713, "word": "beyond", "pos": "介词", "translation": "超越"}, {"id": 714, "word": "happy", "pos": "形容词", "translation": "快乐的"}, {"id": 715, "word": "exactly", "pos": "副词", "translation": "确切地"}, {"id": 716, "word": "protect", "pos": "动词", "translation": "保护"}, {"id": 717, "word": "approach", "pos": "名词", "translation": "方法"}, {"id": 718, "word": "lie", "pos": "动词", "translation": "躺"}, {"id": 719, "word": "size", "pos": "名词", "translation": "尺寸"}, {"id": 720, "word": "dog", "pos": "名词", "translation": "狗"}, {"id": 721, "word": "fund", "pos": "名词", "translation": "基金"}, {"id": 722, "word": "serious", "pos": "形容词", "translation": "严肃的"}, {"id": 723, "word": "occur", "pos": "动词", "translation": "发生"}, {"id": 724, "word": "media", "pos": "名词", "translation": "媒体"}, {"id": 725, "word": "ready", "pos": "形容词", "translation": "准备好的"}, {"id": 726, "word": "sign", "pos": "名词", "translation": "标志"}, {"id": 727, "word": "thought", "pos": "名词", "translation": "想法"}, {"id": 728, "word": "list", "pos": "名词", "translation": "列表"}, {"id": 729, "word": "individual", "pos": "名词", "translation": "个人"}, {"id": 730, "word": "analysis", "pos": "名词", "translation": "分析"}, {"id": 731, "word": "exist", "pos": "动词", "translation": "存在"}, {"id": 732, "word": "according", "pos": "介词", "translation": "根据"}, {"id": 733, "word": "set", "pos": "名词", "translation": "集合"}, {"id": 734, "word": "study", "pos": "名词", "translation": "学习"}, {"id": 735, "word": "loss", "pos": "名词", "translation": "损失"}, {"id": 736, "word": "act", "pos": "动词", "translation": "行动"}, {"id": 737, "word": "clearly", "pos": "副词", "translation": "清楚地"}, {"id": 738, "word": "participate", "pos": "动词", "translation": "参加"}, {"id": 739, "word": "difficult", "pos": "副词", "translation": "困难地"}, {"id": 740, "word": "basic", "pos": "形容词", "translation": "基本的"}, {"id": 741, "word": "pressure", "pos": "名词", "translation": "压力"}, {"id": 742, "word": "join", "pos": "动词", "translation": "加入"}, {"id": 743, "word": "discover", "pos": "动词", "translation": "发现"}, {"id": 744, "word": "vote", "pos": "动词", "translation": "投票"}, {"id": 745, "word": "amount", "pos": "名词", "translation": "数量"}, {"id": 746, "word": "today", "pos": "副词", "translation": "今天"}, {"id": 747, "word": "relationship", "pos": "名词", "translation": "关系"}, {"id": 748, "word": "carry", "pos": "名词", "translation": "携带"}, {"id": 749, "word": "version", "pos": "名词", "translation": "版本"}, {"id": 750, "word": "message", "pos": "名词", "translation": "消息"}, {"id": 751, "word": "guess", "pos": "动词", "translation": "猜测"}, {"id": 752, "word": "key", "pos": "名词", "translation": "钥匙"}, {"id": 753, "word": "anyway", "pos": "副词", "translation": "无论如何"}, {"id": 754, "word": "visit", "pos": "动词", "translation": "访问"}, {"id": 755, "word": "recent", "pos": "副词", "translation": "最近"}, {"id": 756, "word": "affect", "pos": "动词", "translation": "影响"}, {"id": 757, "word": "please", "pos": "动词", "translation": "请"}, {"id": 758, "word": "inside", "pos": "介词", "translation": "在...里面"}, {"id": 759, "word": "advance", "pos": "名词", "translation": "进步"}, {"id": 760, "word": "suggest", "pos": "动词", "translation": "建议"}, {"id": 761, "word": "yes", "pos": "副词", "translation": "是"}, {"id": 762, "word": "standard", "pos": "名词", "translation": "标准"}, {"id": 763, "word": "natural", "pos": "名词", "translation": "自然"}, {"id": 764, "word": "firm", "pos": "名词", "translation": "公司"}, {"id": 765, "word": "indicate", "pos": "动词", "translation": "表明"}, {"id": 766, "word": "recognize", "pos": "动词", "translation": "认出"}, {"id": 767, "word": "box", "pos": "名词", "translation": "盒子"}, {"id": 768, "word": "gift", "pos": "名词", "translation": "礼物"}, {"id": 769, "word": "station", "pos": "名词", "translation": "车站"}, {"id": 770, "word": "responsible", "pos": "形容词", "translation": "负责的"}, {"id": 771, "word": "base", "pos": "动词", "translation": "基于"}, {"id": 772, "word": "check", "pos": "动词", "translation": "检查"}, {"id": 773, "word": "adult", "pos": "名词", "translation": "成人"}, {"id": 774, "word": "possibility", "pos": "名词", "translation": "可能性"}, {"id": 775, "word": "medical", "pos": "名词", "translation": "体检"}, {"id": 776, "word": "training", "pos": "名词", "translation": "训练"}, {"id": 777, "word": "travel", "pos": "动词", "translation": "旅行"}, {"id": 778, "word": "item", "pos": "名词", "translation": "项目"}, {"id": 779, "word": "detail", "pos": "名词", "translation": "细节"}, {"id": 780, "word": "citizen", "pos": "名词", "translation": "公民"}, {"id": 781, "word": "living", "pos": "形容词", "translation": "活的"}, {"id": 782, "word": "positive", "pos": "形容词", "translation": "积极的"}, {"id": 783, "word": "success", "pos": "名词", "translation": "成功"}, {"id": 784, "word": "meeting", "pos": "名词", "translation": "会议"}, {"id": 785, "word": "deep", "pos": "形容词", "translation": "深的"}, {"id": 786, "word": "network", "pos": "名词", "translation": "网络"}, {"id": 787, "word": "absence", "pos": "名词", "translation": "缺席"}, {"id": 788, "word": "cell", "pos": "名词", "translation": "细胞"}, {"id": 789, "word": "film", "pos": "动词", "translation": "拍摄"}, {"id": 790, "word": "interview", "pos": "名词", "translation": "面试"}, {"id": 791, "word": "reach", "pos": "名词", "translation": "范围"}, {"id": 792, "word": "shop", "pos": "名词", "translation": "商店"}, {"id": 793, "word": "critical", "pos": "形容词", "translation": "批评的"}, {"id": 794, "word": "edge", "pos": "名词", "translation": "边缘"}, {"id": 795, "word": "insurance", "pos": "名词", "translation": "保险"}, {"id": 796, "word": "session", "pos": "名词", "translation": "会议"}, {"id": 797, "word": "weather", "pos": "名词", "translation": "天气"}, {"id": 798, "word": "element", "pos": "名词", "translation": "元素"}, {"id": 799, "word": "finish", "pos": "动词", "translation": "完成"}, {"id": 800, "word": "peak", "pos": "名词", "translation": "顶峰"}, {"id": 801, "word": "district", "pos": "名词", "translation": "区域"}, {"id": 802, "word": "contain", "pos": "动词", "translation": "包含"}, {"id": 803, "word": "compare", "pos": "动词", "translation": "比较"}, {"id": 804, "word": "declare", "pos": "动词", "translation": "宣布"}, {"id": 805, "word": "circumstance", "pos": "名词", "translation": "环境"}, {"id": 806, "word": "reflect", "pos": "动词", "translation": "反映"}, {"id": 807, "word": "advantage", "pos": "名词", "translation": "优势"}, {"id": 808, "word": "beautiful", "pos": "形容词", "translation": "美丽的"}, {"id": 809, "word": "shoulder", "pos": "名词", "translation": "肩膀"}, {"id": 810, "word": "extent", "pos": "名词", "translation": "程度"}, {"id": 811, "word": "evidence", "pos": "动词", "translation": "证明"}, {"id": 812, "word": "treat", "pos": "动词", "translation": "对待"}, {"id": 813, "word": "tend", "pos": "动词", "translation": "趋向"}, {"id": 814, "word": "popular", "pos": "形容词", "translation": "流行的"}, {"id": 815, "word": "specific", "pos": "形容词", "translation": "具体的"}, {"id": 816, "word": "forward", "pos": "副词", "translation": "向前"}, {"id": 817, "word": "charge", "pos": "名词", "translation": "费用"}, {"id": 818, "word": "trial", "pos": "名词", "translation": "审判"}, {"id": 819, "word": "manage", "pos": "动词", "translation": "管理"}, {"id": 820, "word": "daily", "pos": "形容词", "translation": "日常的"}, {"id": 821, "word": "guest", "pos": "名词", "translation": "客人"}, {"id": 822, "word": "sensitive", "pos": "形容词", "translation": "敏感的"}, {"id": 823, "word": "estimate", "pos": "动词", "translation": "估计"}, {"id": 824, "word": "previous", "pos": "形容词", "translation": "以前的"}, {"id": 825, "word": "institution", "pos": "名词", "translation": "机构"}, {"id": 826, "word": "reveal", "pos": "动词", "translation": "揭示"}, {"id": 827, "word": "attend", "pos": "动词", "translation": "参加"}, {"id": 828, "word": "annual", "pos": "形容词", "translation": "年度的"}, {"id": 829, "word": "afternoon", "pos": "名词", "translation": "下午"}, {"id": 830, "word": "painting", "pos": "名词", "translation": "绘画"}, {"id": 831, "word": "direct", "pos": "形容词", "translation": "直接的"}, {"id": 832, "word": "immediately", "pos": "副词", "translation": "立即"}, {"id": 833, "word": "attempt", "pos": "名词", "translation": "尝试"}, {"id": 834, "word": "assessment", "pos": "名词", "translation": "评估"}, {"id": 835, "word": "wide", "pos": "形容词", "translation": "宽的"}, {"id": 836, "word": "chief", "pos": "形容词", "translation": "主要的"}, {"id": 837, "word": "demand", "pos": "名词", "translation": "需求"}, {"id": 838, "word": "surface", "pos": "名词", "translation": "表面"}, {"id": 839, "word": "variety", "pos": "名词", "translation": "多样"}, {"id": 840, "word": "specific", "pos": "名词", "translation": "细节"}, {"id": 841, "word": "feature", "pos": "名词", "translation": "特征"}, {"id": 842, "word": "far", "pos": "副词", "translation": "远"}, {"id": 843, "word": "away", "pos": "名词", "translation": "离开"}, {"id": 844, "word": "personnel", "pos": "名词", "translation": "人员"}, {"id": 845, "word": "cat", "pos": "名词", "translation": "猫"}, {"id": 846, "word": "package", "pos": "名词", "translation": "包裹"}, {"id": 847, "word": "difficulty", "pos": "名词", "translation": "困难"}, {"id": 848, "word": "hard", "pos": "副词", "translation": "努力地"}, {"id": 849, "word": "date", "pos": "名词", "translation": "日期"}, {"id": 850, "word": "regional", "pos": "形容词", "translation": "地区的"}, {"id": 851, "word": "serious", "pos": "副词", "translation": "严肃地"}, {"id": 852, "word": "distribution", "pos": "名词", "translation": "分配"}, {"id": 853, "word": "primary", "pos": "形容词", "translation": "主要的"}, {"id": 854, "word": "intend", "pos": "动词", "translation": "打算"}, {"id": 855, "word": "origin", "pos": "名词", "translation": "起源"}, {"id": 856, "word": "investigation", "pos": "名词", "translation": "调查"}, {"id": 857, "word": "measure", "pos": "动词", "translation": "测量"}, {"id": 858, "word": "double", "pos": "形容词", "translation": "双的"}, {"id": 859, "word": "command", "pos": "名词", "translation": "命令"}, {"id": 860, "word": "income", "pos": "名词", "translation": "收入"}, {"id": 861, "word": "profit", "pos": "名词", "translation": "利润"}, {"id": 862, "word": "purchase", "pos": "动词", "translation": "购买"}, {"id": 863, "word": "acid", "pos": "名词", "translation": "酸"}, {"id": 864, "word": "appeal", "pos": "名词", "translation": "呼吁"}, {"id": 865, "word": "sugar", "pos": "名词", "translation": "糖"}, {"id": 866, "word": "contrast", "pos": "名词", "translation": "对比"}, {"id": 867, "word": "capacity", "pos": "名词", "translation": "容量"}, {"id": 868, "word": "peace", "pos": "名词", "translation": "和平"}, {"id": 869, "word": "injury", "pos": "名词", "translation": "伤害"}, {"id": 870, "word": "review", "pos": "名词", "translation": "评论"}, {"id": 871, "word": "minority", "pos": "名词", "translation": "少数"}, {"id": 872, "word": "tall", "pos": "形容词", "translation": "高的"}, {"id": 873, "word": "facility", "pos": "名词", "translation": "设施"}, {"id": 874, "word": "expert", "pos": "名词", "translation": "专家"}, {"id": 875, "word": "spring", "pos": "名词", "translation": "春天"}, {"id": 876, "word": "ring", "pos": "名词", "translation": "戒指"}, {"id": 877, "word": "branch", "pos": "名词", "translation": "分支"}, {"id": 878, "word": "combination", "pos": "名词", "translation": "结合"}, {"id": 879, "word": "youth", "pos": "名词", "translation": "青年"}, {"id": 880, "word": "index", "pos": "名词", "translation": "索引"}, {"id": 881, "word": "host", "pos": "名词", "translation": "主人"}, {"id": 882, "word": "conversation", "pos": "名词", "translation": "对话"}, {"id": 883, "word": "pupil", "pos": "名词", "translation": "学生"}, {"id": 884, "word": "attitude", "pos": "名词", "translation": "态度"}, {"id": 885, "word": "advance", "pos": "动词", "translation": "推进"}, {"id": 886, "word": "reform", "pos": "名词", "translation": "改革"}, {"id": 887, "word": "exercise", "pos": "名词", "translation": "锻炼"}, {"id": 888, "word": "straight", "pos": "形容词", "translation": "直的"}, {"id": 889, "word": "honor", "pos": "名词", "translation": "荣誉"}, {"id": 890, "word": "engine", "pos": "名词", "translation": "引擎"}, {"id": 891, "word": "display", "pos": "名词", "translation": "展示"}, {"id": 892, "word": "trial", "pos": "名词", "translation": "试验"}, {"id": 893, "word": "application", "pos": "名词", "translation": "申请"}, {"id": 894, "word": "feeling", "pos": "名词", "translation": "感觉"}, {"id": 895, "word": "estate", "pos": "名词", "translation": "房地产"}, {"id": 896, "word": "initial", "pos": "形容词", "translation": "最初的"}, {"id": 897, "word": "solution", "pos": "名词", "translation": "解决方案"}, {"id": 898, "word": "increasingly", "pos": "副词", "translation": "越来越"}, {"id": 899, "word": "release", "pos": "动词", "translation": "释放"}, {"id": 900, "word": "village", "pos": "名词", "translation": "村庄"}, {"id": 901, "word": "explanation", "pos": "名词", "translation": "解释"}, {"id": 902, "word": "observe", "pos": "动词", "translation": "观察"}, {"id": 903, "word": "tradition", "pos": "名词", "translation": "传统"}, {"id": 904, "word": "reference", "pos": "名词", "translation": "参考"}, {"id": 905, "word": "aim", "pos": "名词", "translation": "目标"}, {"id": 906, "word": "fast", "pos": "形容词", "translation": "快的"}, {"id": 907, "word": "concept", "pos": "名词", "translation": "概念"}, {"id": 908, "word": "victim", "pos": "名词", "translation": "受害者"}, {"id": 909, "word": "reality", "pos": "名词", "translation": "现实"}, {"id": 910, "word": "tool", "pos": "名词", "translation": "工具"}, {"id": 911, "word": "slowly", "pos": "副词", "translation": "慢慢地"}, {"id": 912, "word": "audience", "pos": "名词", "translation": "观众"}, {"id": 913, "word": "traffic", "pos": "名词", "translation": "交通"}, {"id": 914, "word": "display", "pos": "动词", "translation": "显示"}, {"id": 915, "word": "conclude", "pos": "动词", "translation": "总结"}, {"id": 916, "word": "judge", "pos": "名词", "translation": "法官"}, {"id": 917, "word": "regular", "pos": "形容词", "translation": "定期的"}, {"id": 918, "word": "reaction", "pos": "名词", "translation": "反应"}, {"id": 919, "word": "empty", "pos": "形容词", "translation": "空的"}, {"id": 920, "word": "gather", "pos": "动词", "translation": "收集"}, {"id": 921, "word": "domestic", "pos": "形容词", "translation": "国内的"}, {"id": 922, "word": "adopt", "pos": "动词", "translation": "采用"}, {"id": 923, "word": "usual", "pos": "形容词", "translation": "通常的"}, {"id": 924, "word": "dangerous", "pos": "形容词", "translation": "危险的"}, {"id": 925, "word": "achieve", "pos": "动词", "translation": "实现"}, {"id": 926, "word": "damage", "pos": "名词", "translation": "损害"}, {"id": 927, "word": "observe", "pos": "动词", "translation": "遵守"}, {"id": 928, "word": "direct", "pos": "动词", "translation": "指导"}, {"id": 929, "word": "inform", "pos": "动词", "translation": "通知"}, {"id": 930, "word": "strategy", "pos": "名词", "translation": "策略"}, {"id": 931, "word": "promote", "pos": "动词", "translation": "促进"}, {"id": 932, "word": "incident", "pos": "名词", "translation": "事件"}, {"id": 933, "word": "actual", "pos": "形容词", "translation": "实际的"}, {"id": 934, "word": "suppose", "pos": "动词", "translation": "假设"}, {"id": 935, "word": "commit", "pos": "动词", "translation": "承诺"}, {"id": 936, "word": "decision", "pos": "名词", "translation": "决定"}, {"id": 937, "word": "determine", "pos": "动词", "translation": "决定"}, {"id": 938, "word": "entirely", "pos": "副词", "translation": "完全地"}, {"id": 939, "word": "examine", "pos": "动词", "translation": "检查"}, {"id": 940, "word": "credit", "pos": "名词", "translation": "信用"}, {"id": 941, "word": "middle", "pos": "名词", "translation": "中间"}, {"id": 942, "word": "desire", "pos": "名词", "translation": "欲望"}, {"id": 943, "word": "necessarily", "pos": "副词", "translation": "必然"}, {"id": 944, "word": "factor", "pos": "动词", "translation": "分解"}, {"id": 945, "word": "considerable", "pos": "形容词", "translation": "相当大的"}, {"id": 946, "word": "interpretation", "pos": "名词", "translation": "解释"}, {"id": 947, "word": "section", "pos": "名词", "translation": "部分"}, {"id": 948, "word": "additional", "pos": "形容词", "translation": "额外的"}, {"id": 949, "word": "complex", "pos": "形容词", "translation": "复杂的"}, {"id": 950, "word": "supply", "pos": "名词", "translation": "供应"}, {"id": 951, "word": "enterprise", "pos": "名词", "translation": "企业"}, {"id": 952, "word": "attitude", "pos": "名词", "translation": "姿势"}, {"id": 953, "word": "pension", "pos": "名词", "translation": "养老金"}, {"id": 954, "word": "contribution", "pos": "名词", "translation": "贡献"}, {"id": 955, "word": "code", "pos": "名词", "translation": "代码"}, {"id": 956, "word": "replace", "pos": "动词", "translation": "替换"}, {"id": 957, "word": "relevant", "pos": "形容词", "translation": "相关的"}, {"id": 958, "word": "maintain", "pos": "动词", "translation": "维持"}, {"id": 959, "word": "procedure", "pos": "名词", "translation": "程序"}, {"id": 960, "word": "conflict", "pos": "名词", "translation": "冲突"}, {"id": 961, "word": "resolution", "pos": "名词", "translation": "决议"}, {"id": 962, "word": "contact", "pos": "名词", "translation": "联系"}, {"id": 963, "word": "emerge", "pos": "动词", "translation": "出现"}, {"id": 964, "word": "recommend", "pos": "动词", "translation": "推荐"}, {"id": 965, "word": "proportion", "pos": "名词", "translation": "比例"}, {"id": 966, "word": "concern", "pos": "动词", "translation": "涉及"}, {"id": 967, "word": "vote", "pos": "名词", "translation": "投票"}, {"id": 968, "word": "unite", "pos": "动词", "translation": "联合"}, {"id": 969, "word": "internal", "pos": "形容词", "translation": "内部的"}, {"id": 970, "word": "extra", "pos": "形容词", "translation": "额外的"}, {"id": 971, "word": "academic", "pos": "形容词", "translation": "学术的"}, {"id": 972, "word": "output", "pos": "名词", "translation": "产出"}, {"id": 973, "word": "ultimately", "pos": "副词", "translation": "最终"}, {"id": 974, "word": "regulation", "pos": "名词", "translation": "规章"}, {"id": 975, "word": "corporate", "pos": "形容词", "translation": "公司的"}, {"id": 976, "word": "appropriate", "pos": "形容词", "translation": "适当的"}, {"id": 977, "word": "involvement", "pos": "名词", "translation": "参与"}, {"id": 978, "word": "liberal", "pos": "形容词", "translation": "自由的"}, {"id": 979, "word": "understanding", "pos": "名词", "translation": "理解"}, {"id": 980, "word": "laboratory", "pos": "名词", "translation": "实验室"}, {"id": 981, "word": "category", "pos": "名词", "translation": "类别"}, {"id": 982, "word": "constitute", "pos": "动词", "translation": "构成"}, {"id": 983, "word": "spending", "pos": "名词", "translation": "花费"}, {"id": 984, "word": "notion", "pos": "名词", "translation": "概念"}, {"id": 985, "word": "apart", "pos": "副词", "translation": "分开"}, {"id": 986, "word": "match", "pos": "名词", "translation": "比赛"}, {"id": 987, "word": "conventional", "pos": "形容词", "translation": "传统的"}, {"id": 988, "word": "communication", "pos": "名词", "translation": "交流"}, {"id": 989, "word": "resistance", "pos": "名词", "translation": "抵抗"}, {"id": 990, "word": "substance", "pos": "名词", "translation": "物质"}, {"id": 991, "word": "arise", "pos": "动词", "translation": "产生"}, {"id": 992, "word": "proportion", "pos": "名词", "translation": "部分"}, {"id": 993, "word": "address", "pos": "名词", "translation": "地址"}, {"id": 994, "word": "communication", "pos": "名词", "translation": "通信"}, {"id": 995, "word": "intention", "pos": "名词", "translation": "意图"}, {"id": 996, "word": "channel", "pos": "名词", "translation": "频道"}, {"id": 997, "word": "concentrate", "pos": "动词", "translation": "集中"}, {"id": 998, "word": "effectively", "pos": "副词", "translation": "有效地"}, {"id": 999, "word": "consequence", "pos": "名词", "translation": "结果"}, {"id": 1000, "word": "provision", "pos": "名词", "translation": "提供"}, {"id": 1001, "word": "convention", "pos": "名词", "translation": "惯例"}, {"id": 1002, "word": "revenue", "pos": "名词", "translation": "收入"}, {"id": 1003, "word": "component", "pos": "名词", "translation": "组件"}, {"id": 1004, "word": "imply", "pos": "动词", "translation": "暗示"}, {"id": 1005, "word": "competition", "pos": "名词", "translation": "竞争"}, {"id": 1006, "word": "emphasis", "pos": "名词", "translation": "强调"}, {"id": 1007, "word": "consideration", "pos": "名词", "translation": "考虑"}, {"id": 1008, "word": "definition", "pos": "名词", "translation": "定义"}, {"id": 1009, "word": "accommodation", "pos": "名词", "translation": "住宿"}, {"id": 1010, "word": "brief", "pos": "形容词", "translation": "简短的"}, {"id": 1011, "word": "instance", "pos": "名词", "translation": "例子"}, {"id": 1012, "word": "error", "pos": "名词", "translation": "错误"}, {"id": 1013, "word": "demonstrate", "pos": "动词", "translation": "证明"}, {"id": 1014, "word": "aid", "pos": "名词", "translation": "援助"}, {"id": 1015, "word": "substantial", "pos": "形容词", "translation": "大量的"}, {"id": 1016, "word": "distribute", "pos": "动词", "translation": "分配"}, {"id": 1017, "word": "importance", "pos": "名词", "translation": "重要性"}, {"id": 1018, "word": "acknowledge", "pos": "动词", "translation": "承认"}, {"id": 1019, "word": "principle", "pos": "名词", "translation": "原则"}, {"id": 1020, "word": "survey", "pos": "名词", "translation": "调查"}, {"id": 1021, "word": "threat", "pos": "名词", "translation": "威胁"}, {"id": 1022, "word": "reform", "pos": "动词", "translation": "改革"}, {"id": 1023, "word": "initiative", "pos": "名词", "translation": "倡议"}, {"id": 1024, "word": "conclusion", "pos": "名词", "translation": "结论"}, {"id": 1025, "word": "occasion", "pos": "名词", "translation": "场合"}, {"id": 1026, "word": "illustrate", "pos": "动词", "translation": "说明"}, {"id": 1027, "word": "generate", "pos": "动词", "translation": "产生"}, {"id": 1028, "word": "generation", "pos": "名词", "translation": "一代"}, {"id": 1029, "word": "external", "pos": "形容词", "translation": "外部的"}, {"id": 1030, "word": "vast", "pos": "形容词", "translation": "巨大的"}, {"id": 1031, "word": "survive", "pos": "动词", "translation": "幸存"}, {"id": 1032, "word": "struggle", "pos": "名词", "translation": "斗争"}, {"id": 1033, "word": "target", "pos": "名词", "translation": "目标"}, {"id": 1034, "word": "transfer", "pos": "动词", "translation": "转移"}, {"id": 1035, "word": "rely", "pos": "动词", "translation": "依靠"}, {"id": 1036, "word": "minor", "pos": "形容词", "translation": "次要的"}, {"id": 1037, "word": "expense", "pos": "名词", "translation": "费用"}, {"id": 1038, "word": "concentration", "pos": "名词", "translation": "集中"}, {"id": 1039, "word": "massive", "pos": "形容词", "translation": "巨大的"}, {"id": 1040, "word": "unique", "pos": "形容词", "translation": "独特的"}, {"id": 1041, "word": "regime", "pos": "名词", "translation": "政权"}, {"id": 1042, "word": "reinforce", "pos": "动词", "translation": "加强"}, {"id": 1043, "word": "equally", "pos": "副词", "translation": "相等地"}, {"id": 1044, "word": "urban", "pos": "形容词", "translation": "城市的"}, {"id": 1045, "word": "panel", "pos": "名词", "translation": "面板"}, {"id": 1046, "word": "distinction", "pos": "名词", "translation": "区别"}, {"id": 1047, "word": "familiar", "pos": "形容词", "translation": "熟悉的"}, {"id": 1048, "word": "capable", "pos": "形容词", "translation": "有能力的"}, {"id": 1049, "word": "characteristic", "pos": "名词", "translation": "特征"}, {"id": 1050, "word": "prison", "pos": "名词", "translation": "监狱"}, {"id": 1051, "word": "doubt", "pos": "名词", "translation": "怀疑"}, {"id": 1052, "word": "conservative", "pos": "形容词", "translation": "保守的"}, {"id": 1053, "word": "incorporate", "pos": "动词", "translation": "合并"}, {"id": 1054, "word": "priority", "pos": "名词", "translation": "优先"}, {"id": 1055, "word": "comprehensive", "pos": "形容词", "translation": "全面的"}, {"id": 1056, "word": "expand", "pos": "动词", "translation": "扩大"}, {"id": 1057, "word": "front", "pos": "名词", "translation": "前面"}, {"id": 1058, "word": "acquire", "pos": "动词", "translation": "获得"}, {"id": 1059, "word": "ultimately", "pos": "副词", "translation": "最后"}, {"id": 1060, "word": "conflict", "pos": "动词", "translation": "冲突"}, {"id": 1061, "word": "dominate", "pos": "动词", "translation": "支配"}, {"id": 1062, "word": "background", "pos": "名词", "translation": "背景"}, {"id": 1063, "word": "welfare", "pos": "名词", "translation": "福利"}, {"id": 1064, "word": "regard", "pos": "动词", "translation": "视为"}, {"id": 1065, "word": "negotiation", "pos": "名词", "translation": "谈判"}, {"id": 1066, "word": "deny", "pos": "动词", "translation": "否认"}, {"id": 1067, "word": "diversity", "pos": "名词", "translation": "多样性"}, {"id": 1068, "word": "assume", "pos": "动词", "translation": "假设"}, {"id": 1069, "word": "initially", "pos": "副词", "translation": "最初"}, {"id": 1070, "word": "recovery", "pos": "名词", "translation": "恢复"}, {"id": 1071, "word": "remaining", "pos": "形容词", "translation": "剩余的"}, {"id": 1072, "word": "impose", "pos": "动词", "translation": "强加"}, {"id": 1073, "word": "permanent", "pos": "形容词", "translation": "永久的"}, {"id": 1074, "word": "implication", "pos": "名词", "translation": "含义"}, {"id": 1075, "word": "balance", "pos": "名词", "translation": "平衡"}, {"id": 1076, "word": "domestic", "pos": "名词", "translation": "佣人"}, {"id": 1077, "word": "external", "pos": "名词", "translation": "外部"}, {"id": 1078, "word": "relatively", "pos": "副词", "translation": "相对地"}, {"id": 1079, "word": "sufficient", "pos": "形容词", "translation": "足够的"}, {"id": 1080, "word": "shift", "pos": "动词", "translation": "转移"}, {"id": 1081, "word": "crucial", "pos": "形容词", "translation": "关键的"}, {"id": 1082, "word": "federal", "pos": "形容词", "translation": "联邦的"}, {"id": 1083, "word": "investigation", "pos": "名词", "translation": "研究"}, {"id": 1084, "word": "rest", "pos": "动词", "translation": "休息"}, {"id": 1085, "word": "representation", "pos": "名词", "translation": "代表"}, {"id": 1086, "word": "leaf", "pos": "名词", "translation": "叶子"}, {"id": 1087, "word": "congressional", "pos": "形容词", "translation": "国会的"}, {"id": 1088, "word": "assess", "pos": "动词", "translation": "评估"}, {"id": 1089, "word": "favor", "pos": "名词", "translation": "恩惠"}, {"id": 1090, "word": "fashion", "pos": "名词", "translation": "时尚"}, {"id": 1091, "word": "primarily", "pos": "副词", "translation": "主要地"}, {"id": 1092, "word": "shoulder", "pos": "动词", "translation": "承担"}, {"id": 1093, "word": "institutional", "pos": "形容词", "translation": "制度的"}, {"id": 1094, "word": "mixed", "pos": "形容词", "translation": "混合的"}, {"id": 1095, "word": "slow", "pos": "形容词", "translation": "慢的"}, {"id": 1096, "word": "rural", "pos": "形容词", "translation": "农村的"}, {"id": 1097, "word": "county", "pos": "名词", "translation": "县"}, {"id": 1098, "word": "labour", "pos": "名词", "translation": "劳动"}, {"id": 1099, "word": "coast", "pos": "名词", "translation": "海岸"}, {"id": 1100, "word": "measurement", "pos": "名词", "translation": "测量"}, {"id": 1101, "word": "medium", "pos": "名词", "translation": "媒介"}, {"id": 1102, "word": "everyday", "pos": "形容词", "translation": "每天的"}, {"id": 1103, "word": "challenge", "pos": "名词", "translation": "挑战"}, {"id": 1104, "word": "detailed", "pos": "形容词", "translation": "详细的"}, {"id": 1105, "word": "judgment", "pos": "名词", "translation": "判断"}, {"id": 1106, "word": "premise", "pos": "名词", "translation": "前提"}, {"id": 1107, "word": "possess", "pos": "动词", "translation": "拥有"}, {"id": 1108, "word": "evolve", "pos": "动词", "translation": "进化"}, {"id": 1109, "word": "collective", "pos": "形容词", "translation": "集体的"}, {"id": 1110, "word": "dramatic", "pos": "形容词", "translation": "戏剧性的"}, {"id": 1111, "word": "scientific", "pos": "形容词", "translation": "科学的"}, {"id": 1112, "word": "disappear", "pos": "动词", "translation": "消失"}, {"id": 1113, "word": "succeed", "pos": "动词", "translation": "成功"}, {"id": 1114, "word": "largely", "pos": "副词", "translation": "主要地"}, {"id": 1115, "word": "locate", "pos": "动词", "translation": "位于"}, {"id": 1116, "word": "manner", "pos": "名词", "translation": "方式"}, {"id": 1117, "word": "fundamental", "pos": "形容词", "translation": "基本的"}, {"id": 1118, "word": "pool", "pos": "名词", "translation": "池"}, {"id": 1119, "word": "teaching", "pos": "名词", "translation": "教学"}, {"id": 1120, "word": "widespread", "pos": "形容词", "translation": "广泛的"}, {"id": 1121, "word": "advise", "pos": "动词", "translation": "建议"}, {"id": 1122, "word": "concentration", "pos": "名词", "translation": "浓度"}, {"id": 1123, "word": "deep", "pos": "副词", "translation": "深深地"}, {"id": 1124, "word": "solid", "pos": "形容词", "translation": "固体的"}, {"id": 1125, "word": "enterprise", "pos": "名词", "translation": "事业"}, {"id": 1126, "word": "establishment", "pos": "名词", "translation": "建立"}, {"id": 1127, "word": "conventional", "pos": "名词", "translation": "传统"}, {"id": 1128, "word": "respond", "pos": "动词", "translation": "回应"}, {"id": 1129, "word": "distribute", "pos": "动词", "translation": "分布"}, {"id": 1130, "word": "capacity", "pos": "名词", "translation": "能力"}, {"id": 1131, "word": "differ", "pos": "动词", "translation": "不同"}, {"id": 1132, "word": "interpret", "pos": "动词", "translation": "解释"}, {"id": 1133, "word": "exposure", "pos": "名词", "translation": "暴露"}, {"id": 1134, "word": "framework", "pos": "名词", "translation": "框架"}, {"id": 1135, "word": "finance", "pos": "名词", "translation": "金融"}, {"id": 1136, "word": "plus", "pos": "介词", "translation": "加"}, {"id": 1137, "word": "relief", "pos": "名词", "translation": "救济"}, {"id": 1138, "word": "relate", "pos": "动词", "translation": "联系"}, {"id": 1139, "word": "adopt", "pos": "形容词", "translation": "收养的"}, {"id": 1140, "word": "limited", "pos": "形容词", "translation": "有限的"}, {"id": 1141, "word": "afraid", "pos": "形容词", "translation": "害怕的"}, {"id": 1142, "word": "revenue", "pos": "名词", "translation": "税收"}, {"id": 1143, "word": "transition", "pos": "名词", "translation": "过渡"}, {"id": 1144, "word": "mechanism", "pos": "名词", "translation": "机制"}, {"id": 1145, "word": "initiate", "pos": "动词", "translation": "开始"}, {"id": 1146, "word": "alternative", "pos": "形容词", "translation": "替代的"}, {"id": 1147, "word": "competitive", "pos": "形容词", "translation": "竞争的"}, {"id": 1148, "word": "absolute", "pos": "形容词", "translation": "绝对的"}, {"id": 1149, "word": "classic", "pos": "形容词", "translation": "经典的"}, {"id": 1150, "word": "frequency", "pos": "名词", "translation": "频率"}, {"id": 1151, "word": "intense", "pos": "形容词", "translation": "强烈的"}, {"id": 1152, "word": "advance", "pos": "形容词", "translation": "预先的"}, {"id": 1153, "word": "voluntary", "pos": "形容词", "translation": "自愿的"}, {"id": 1154, "word": "visible", "pos": "形容词", "translation": "可见的"}, {"id": 1155, "word": "participation", "pos": "名词", "translation": "参与"}, {"id": 1156, "word": "long-term", "pos": "形容词", "translation": "长期的"}, {"id": 1157, "word": "principal", "pos": "形容词", "translation": "主要的"}, {"id": 1158, "word": "perception", "pos": "名词", "translation": "感知"}, {"id": 1159, "word": "rapid", "pos": "形容词", "translation": "快速的"}, {"id": 1160, "word": "subsequent", "pos": "形容词", "translation": "随后的"}, {"id": 1161, "word": "diversity", "pos": "名词", "translation": "差异"}, {"id": 1162, "word": "intelligence", "pos": "名词", "translation": "智力"}, {"id": 1163, "word": "select", "pos": "动词", "translation": "选择"}, {"id": 1164, "word": "reputation", "pos": "名词", "translation": "名声"}, {"id": 1165, "word": "accomplish", "pos": "动词", "translation": "完成"}, {"id": 1166, "word": "overcome", "pos": "动词", "translation": "克服"}, {"id": 1167, "word": "justify", "pos": "动词", "translation": "证明"}, {"id": 1168, "word": "illustration", "pos": "名词", "translation": "插图"}, {"id": 1169, "word": "transform", "pos": "动词", "translation": "转变"}, {"id": 1170, "word": "representation", "pos": "名词", "translation": "表现"}, {"id": 1171, "word": "concerning", "pos": "介词", "translation": "关于"}, {"id": 1172, "word": "eliminate", "pos": "动词", "translation": "消除"}, {"id": 1173, "word": "profile", "pos": "名词", "translation": "轮廓"}, {"id": 1174, "word": "specialist", "pos": "名词", "translation": "专家"}, {"id": 1175, "word": "originally", "pos": "副词", "translation": "最初"}, {"id": 1176, "word": "vary", "pos": "动词", "translation": "变化"}, {"id": 1177, "word": "accurate", "pos": "形容词", "translation": "准确的"}, {"id": 1178, "word": "decrease", "pos": "动词", "translation": "减少"}, {"id": 1179, "word": "temporary", "pos": "形容词", "translation": "暂时的"}, {"id": 1180, "word": "assistance", "pos": "名词", "translation": "援助"}, {"id": 1181, "word": "participate", "pos": "动词", "translation": "分享"}, {"id": 1182, "word": "modest", "pos": "形容词", "translation": "谦虚的"}, {"id": 1183, "word": "alternative", "pos": "名词", "translation": "选择"}, {"id": 1184, "word": "revolution", "pos": "名词", "translation": "革命"}, {"id": 1185, "word": "desirable", "pos": "形容词", "translation": "理想的"}, {"id": 1186, "word": "exceed", "pos": "动词", "translation": "超过"}, {"id": 1187, "word": "impressive", "pos": "形容词", "translation": "令人印象深刻的"}, {"id": 1188, "word": "intensity", "pos": "名词", "translation": "强度"}, {"id": 1189, "word": "recession", "pos": "名词", "translation": "衰退"}, {"id": 1190, "word": "register", "pos": "动词", "translation": "注册"}, {"id": 1191, "word": "apparent", "pos": "形容词", "translation": "明显的"}, {"id": 1192, "word": "encounter", "pos": "动词", "translation": "遇到"}, {"id": 1193, "word": "convinced", "pos": "形容词", "translation": "确信的"}, {"id": 1194, "word": "democratic", "pos": "形容词", "translation": "民主的"}, {"id": 1195, "word": "sustain", "pos": "动词", "translation": "维持"}, {"id": 1196, "word": "acknowledge", "pos": "动词", "translation": "答谢"}, {"id": 1197, "word": "enhance", "pos": "动词", "translation": "提高"}, {"id": 1198, "word": "flexible", "pos": "形容词", "translation": "灵活的"}, {"id": 1199, "word": "incentive", "pos": "名词", "translation": "激励"}, {"id": 1200, "word": "precise", "pos": "形容词", "translation": "精确的"}, {"id": 1201, "word": "distant", "pos": "形容词", "translation": "遥远的"}, {"id": 1202, "word": "concrete", "pos": "形容词", "translation": "具体的"}, {"id": 1203, "word": "intelligent", "pos": "形容词", "translation": "聪明的"}, {"id": 1204, "word": "curriculum", "pos": "名词", "translation": "课程"}, {"id": 1205, "word": "remarkable", "pos": "形容词", "translation": "非凡的"}, {"id": 1206, "word": "sophisticated", "pos": "形容词", "translation": "复杂的"}];
+
+        // 状态管理
+        let currentWordIndex = 0;
+        let masteredWordIds = new Set();
+        let remainingWords = [];
+
+        // 初始化
+        function init() {
+            loadMasteredWords();
+            updateRemainingWords();
+            updateStats();
+            showLearning();
+        }
+
+        // 从本地存储加载已掌握的单词
+        function loadMasteredWords() {
+            const saved = localStorage.getItem('masteredWords');
+            if (saved) {
+                masteredWordIds = new Set(JSON.parse(saved));
+            }
+        }
+
+        // 保存已掌握的单词到本地存储
+        function saveMasteredWords() {
+            localStorage.setItem('masteredWords', JSON.stringify([...masteredWordIds]));
+        }
+
+        // 更新待学习单词列表
+        function updateRemainingWords() {
+            remainingWords = wordsDatabase.filter(word => !masteredWordIds.has(word.id));
+            currentWordIndex = 0;
+        }
+
+        // 更新统计数据
+        function updateStats() {
+            const total = wordsDatabase.length;
+            const mastered = masteredWordIds.size;
+            const remaining = total - mastered;
+            const progress = total > 0 ? (mastered / total * 100).toFixed(1) : 0;
+
+            document.getElementById('totalWords').textContent = total;
+            document.getElementById('masteredWords').textContent = mastered;
+            document.getElementById('remainingWords').textContent = remaining;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // 获取音标
+        function getPhonetic(word) {
+            // 这里使用一个简化的音标映射，实际应用中可以使用API
+            const phoneticMap = {
+                'the': 'ðə',
+                'be': 'biː',
+                'and': 'ænd',
+                'of': 'ɒv',
+                'a': 'ə',
+                'in': 'ɪn',
+                'to': 'tuː',
+                'have': 'hæv',
+                'it': 'ɪt',
+                'for': 'fɔː'
+            };
+            return phoneticMap[word.toLowerCase()] || `/${word}/`;
+        }
+
+        // 生成例句
+        function generateExample(word, pos) {
+            const examples = {
+                'the': 'The sun rises in the east.',
+                'be': 'To be or not to be, that is the question.',
+                'and': 'She likes reading and writing.',
+                'of': 'The capital of China is Beijing.',
+                'a': 'I have a dream.',
+                'in': 'She lives in New York.',
+                'to': 'I want to learn English.',
+                'have': 'I have two brothers.',
+                'it': 'It is a beautiful day.',
+                'for': 'This gift is for you.'
+            };
+            
+            return examples[word.toLowerCase()] || `This is an example sentence with the word "${word}".`;
+        }
+
+        // 显示单词
+        function displayWord(word) {
+            const phonetic = getPhonetic(word.word);
+            const example = generateExample(word.word, word.pos);
+
+            const html = `
+                <div class="word-title">${word.word}</div>
+                <div class="phonetic-container">
+                    <div class="phonetic">/${phonetic}/</div>
+                    <button class="speaker-btn" onclick="speakWord('${word.word}', '${phonetic}')">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
+                        </svg>
+                    </button>
+                </div>
+                <div class="word-info">
+                    <div class="pos">${word.pos}</div>
+                    <div class="translation">${word.translation}</div>
+                    <div class="example">
+                        <div class="example-label">📝 例句</div>
+                        <div class="example-text">${example}</div>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="action-btn master-btn" onclick="markAsMastered()">
+                        ✓ 已掌握
+                    </button>
+                    <button class="action-btn next-btn" onclick="nextWord()">
+                        下一个 →
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('wordDisplay').innerHTML = html;
+        }
+
+        // 朗读单词
+        function speakWord(word, phonetic) {
+            // 使用浏览器的语音合成API
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.8;
+                window.speechSynthesis.cancel(); // 取消之前的朗读
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert('您的浏览器不支持语音功能');
+            }
+        }
+
+        // 标记为已掌握
+        function markAsMastered() {
+            if (remainingWords.length === 0) return;
+
+            const currentWord = remainingWords[currentWordIndex];
+            masteredWordIds.add(currentWord.id);
+            saveMasteredWords();
+            updateRemainingWords();
+            updateStats();
+
+            if (remainingWords.length > 0) {
+                // 显示下一个单词
+                if (currentWordIndex >= remainingWords.length) {
+                    currentWordIndex = 0;
+                }
+                displayWord(remainingWords[currentWordIndex]);
+            } else {
+                // 所有单词都已掌握
+                showAllMastered();
+            }
+        }
+
+        // 下一个单词
+        function nextWord() {
+            if (remainingWords.length === 0) return;
+
+            currentWordIndex++;
+            if (currentWordIndex >= remainingWords.length) {
+                currentWordIndex = 0;
+            }
+            displayWord(remainingWords[currentWordIndex]);
+        }
+
+        // 显示所有单词已掌握
+        function showAllMastered() {
+            document.getElementById('wordDisplay').innerHTML = `
+                <div class="empty-state">
+                    <p style="font-size: 1.5em; color: #667eea;">🎉 恭喜！</p>
+                    <p style="margin-top: 15px; font-size: 1.1em;">你已经掌握了所有单词！</p>
+                    <p style="margin-top: 10px;">可以在"已掌握单词"中复习</p>
+                </div>
+            `;
+        }
+
+        // 显示学习界面
+        function showLearning() {
+            document.getElementById('learningCard').classList.remove('hidden');
+            document.getElementById('masteredCard').classList.remove('active');
+
+            if (remainingWords.length > 0) {
+                displayWord(remainingWords[currentWordIndex]);
+            } else {
+                showAllMastered();
+            }
+        }
+
+        // 显示已掌握单词列表
+        function showMastered() {
+            document.getElementById('learningCard').classList.add('hidden');
+            document.getElementById('masteredCard').classList.add('active');
+
+            const masteredList = document.getElementById('masteredList');
+            
+            if (masteredWordIds.size === 0) {
+                masteredList.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                        <p style="font-size: 1.2em;">还没有掌握任何单词</p>
+                        <p style="margin-top: 10px;">开始学习并标记已掌握的单词吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const masteredWordsArray = wordsDatabase.filter(word => masteredWordIds.has(word.id));
+            
+            let html = '<div class="word-grid">';
+            masteredWordsArray.forEach(word => {
+                html += `
+                    <div class="word-card" onclick="reviewWord(${word.id})">
+                        <div class="word-card-title">${word.word}</div>
+                        <div class="word-card-trans">${word.pos} · ${word.translation}</div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+
+            masteredList.innerHTML = html;
+        }
+
+        // 复习单词（从已掌握列表中移除）
+        function reviewWord(wordId) {
+            if (confirm('是否要将此单词标记为"未掌握"并重新学习？')) {
+                masteredWordIds.delete(wordId);
+                saveMasteredWords();
+                updateRemainingWords();
+                updateStats();
+                showMastered();
+            }
+        }
+
+        // 页面加载时初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
